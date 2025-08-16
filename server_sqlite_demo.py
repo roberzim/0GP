@@ -1,67 +1,33 @@
 #!/usr/bin/env python3
-import os
-import logging
+from __future__ import annotations
+import os, sqlite3
 from nicegui import ui
-
-# Nuovo layer
 from db_core import initialize_schema, get_connection
+import repo_sqlite
 
-DB_PATH = os.environ.get('GP_DB_PATH', os.path.join('archivio', '0gp.sqlite'))
-
-def bootstrap_db() -> None:
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    initialize_schema(DB_PATH)
-    logging.info("DB pronto: %s", DB_PATH)
+DB_PATH = os.environ.get('GP_DB_PATH', os.path.join('archivio','0gp.sqlite'))
+initialize_schema(DB_PATH, schema_path='db_schema.sql')
 
 @ui.page('/')
 def index():
-    with ui.header().classes('items-center justify-between'):
-        ui.label('0GP (SQLite layer)').classes('text-lg')
-        with ui.row():
-            ui.button('Nuova pratica', on_click=nuova_pratica)
-            ui.button('Apri da DB', on_click=apri_da_db)
-            ui.button('Importa (.sqlite/.json)', on_click=do_import)
-            ui.button('Esporta (.sqlite)', on_click=do_export)
-    ui.label('Benvenuto in 0GP + SQLite').classes('mt-6')
+    with ui.card().classes('max-w-3xl m-auto mt-10 p-4'):
+        ui.label('0GP - Demo SQLite').classes('text-2xl font-bold')
+        with ui.row().classes('mt-2'):
+            ui.button('Elenco pratiche', on_click=show_pratiche)
+        ui.label(f'DB: {DB_PATH}').classes('text-xs opacity-70 mt-2')
 
-def nuova_pratica():
-    # TODO: collega al tuo flusso esistente di creazione pratica e poi dual-write
-    ui.notify('TODO: Nuova pratica')
+def show_pratiche():
+    with ui.dialog() as dialog, ui.card():
+        ui.label('Pratiche').classes('text-lg font-semibold')
+        with ui.column().classes('max-h-96 overflow-auto w-[600px]'):
+            with get_connection(DB_PATH) as con:
+                con.row_factory = sqlite3.Row
+                for r in con.execute("SELECT id_pratica, anno, numero, tipo_pratica, referente_nome FROM pratiche ORDER BY updated_at DESC, id_pratica DESC LIMIT 200"):
+                    with ui.row().classes('justify-between w-full'):
+                        ui.label(r['id_pratica'])
+                        ui.label(r['tipo_pratica'] or '-')
+                        ui.label(r['referente_nome'] or '-')
+        ui.button('Chiudi', on_click=dialog.close).classes('mt-2')
+    dialog.open()
 
-def apri_da_db():
-    try:
-        with get_connection(DB_PATH) as con:
-            rows = con.execute(
-                'SELECT id_pratica FROM pratiche ORDER BY id_pratica DESC'
-            ).fetchall()
-        if not rows:
-            ui.notify('Nessuna pratica nel DB', type='warning')
-            return
-        with ui.dialog() as d, ui.card():
-            ui.label('Pratiche in DB')
-            for r in rows:
-                pid = r['id_pratica'] if isinstance(r, dict) else r[0]
-                ui.button(pid, on_click=lambda e, _pid=pid: (d.close(), ui.notify(f'Aperta {_pid}')))
-            ui.button('Chiudi', on_click=d.close)
-        d.open()
-    except Exception as e:
-        logging.exception('Errore apertura da DB')
-        ui.notify(f'Errore: {e}', type='negative')
-
-def do_import():
-    # TODO: collega a import_export_sqlite.import_pratica_sqlite / import da JSON
-    ui.notify('TODO: Import')
-
-def do_export():
-    # TODO: collega a import_export_sqlite.export_pratica_sqlite sulla pratica corrente
-    ui.notify('TODO: Export')
-
-def main():
-    logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
-    bootstrap_db()
-    # Avvio NiceGUI
-    ui.run(title='0GP', port=int(os.environ.get('PORT', 8080)))
-
-if __name__ in {'__main__', '__mp_main__'}:
-    main()
-
+ui.run(title='0GP Demo', reload=False, port=int(os.environ.get('PORT', '8080')), show=False)

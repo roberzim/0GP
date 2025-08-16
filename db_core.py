@@ -1,71 +1,49 @@
-# db_core.py
+#!/usr/bin/env python3
 from __future__ import annotations
-import sqlite3
+import os, sqlite3
 from contextlib import contextmanager
-from pathlib import Path
+from typing import Optional
 
-_PRAGMAS = (
-    "PRAGMA journal_mode=WAL;",
-    "PRAGMA synchronous=NORMAL;",
-    "PRAGMA foreign_keys=ON;",
-    "PRAGMA temp_store=MEMORY;",
-)
-
-def _apply_pragmas(con: sqlite3.Connection) -> None:
-    cur = con.cursor()
-    for p in _PRAGMAS:
-        cur.execute(p)
-    cur.close()
+PRAGMAS = [
+    ("foreign_keys", "ON"),
+    ("journal_mode", "WAL"),
+    ("synchronous", "NORMAL"),
+    ("temp_store", "MEMORY"),
+]
 
 @contextmanager
 def get_connection(db_path: str):
-    """Apre una connessione SQLite con PRAGMA applicati."""
-    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(db_path)
-    con.row_factory = sqlite3.Row
-    _apply_pragmas(con)
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    con = sqlite3.connect(db_path, isolation_level=None)  # autocommit mode; we'll handle BEGIN manually
     try:
+        for k, v in PRAGMAS:
+            try:
+                con.execute(f"PRAGMA {k}={v};")
+            except Exception:
+                pass
         yield con
     finally:
         con.close()
 
 @contextmanager
 def atomic_tx(con: sqlite3.Connection):
-    """Transazione atomica (BEGIN/COMMIT/ROLLBACK)."""
     try:
         con.execute("BEGIN")
         yield con
-    except Exception:
-        con.execute("ROLLBACK")
-        raise
-    else:
         con.execute("COMMIT")
+    except Exception:
+        try:
+            con.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
 
-def initialize_schema(db_path: str, schema_path: str = "db_schema.sql") -> None:
-    """
-    Crea/aggiorna lo schema del DB leggendo da db_schema.sql.
-    Se il file non esiste, usa uno schema minimo di fallback.
-    """
-    schema_file = Path(schema_path)
-    if schema_file.exists():
-        sql = schema_file.read_text(encoding="utf-8")
-    else:
-        # Fallback minimale: solo tabella pratiche
-        sql = """
-        CREATE TABLE IF NOT EXISTS pratiche (
-            id_pratica TEXT PRIMARY KEY,
-            created_at TEXT DEFAULT (datetime('now')),
-            updated_at TEXT
-        );
-        """
-    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(db_path) as con:
-        _apply_pragmas(con)
-        con.executescript(sql)
-
-__all__ = [
-    "get_connection",
-    "atomic_tx",
-    "initialize_schema",
-]
-
+def initialize_schema(db_path: str, schema_path: Optional[str] = None, schema_sql: Optional[str] = None):
+    if not schema_sql:
+        if not schema_path:
+            schema_path = "db_schema.sql"
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema_sql = f.read()
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    with get_connection(db_path) as con:
+        con.executescript(schema_sql)

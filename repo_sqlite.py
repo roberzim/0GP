@@ -24,124 +24,148 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Dict, Optional, Iterable, Any
+from contextlib import contextmanager
+from db_core import get_connection as _get_connection, atomic_tx
+from typing import Any, Dict, List, Tuple
+from db_core import atomic_tx
 
-from db_core import get_connection, atomic_tx
+DB_PATH = os.environ.get('GP_DB_PATH', os.path.join('archivio', '0gp.sqlite'))
+
+@contextmanager
+def get_connection():
+    """Wrapper: restituisce una connessione pronta all'uso al DB predefinito."""
+    with _get_connection(DB_PATH) as con:
+        yield con
 
 
-def upsert_pratica(pratica: Dict[str, Any], *, conn: Optional[Any] = None) -> None:
-    """Insert or update a complete practice into the database.
+def _ensure_uid(item: Dict[str, Any]) -> str:
+    u = (item.get("uid") or "").strip()
+    if u: 
+        return u
+    # se l'UI non fornisce uid, ne creiamo uno (meglio farlo in UI!)
+    import uuid
+    u = uuid.uuid4().hex
+    item["uid"] = u
+    return u
 
-    This function writes the core record to ``pratiche`` and then
-    replaces all child collections (avvocati, tariffe, attivita,
-    scadenze, documenti).  To preserve ordering, the ``ordine`` field
-    from the tariff list is used as part of the composite key.
-
-    Args:
-        pratica: A dictionary representing the entire practice as used by
-            the frontend and JSON backend.  Expected keys include
-            ``id_pratica``, ``metadata``, ``avvocati``, ``tariffe``,
-            ``attivita``, ``scadenze`` and ``documenti``.
-        conn: Optional existing SQLite connection.  When omitted a
-            temporary connection is created and closed automatically.
-
-    Note:
-        This implementation uses a simple delete/insert strategy for
-        child collections.  For large practices consider batching
-        deletes and inserts or diffing to reduce write amplification.
+def merge_children(con, *, table: str, parent_col: str, parent_id: str,
+                   rows: List[Dict[str, Any]], colmap: Dict[str,str],
+                   order_field: str = "pos", delete_missing: bool = True) -> None:
     """
-    should_close = False
-    if conn is None:
-        conn = get_connection()
-        should_close = True
-    with atomic_tx(conn):
-        meta = pratica.get('metadata', {})
-        id_pratica = pratica['id_pratica']
-        # Upsert core record
-        conn.execute(
-            """
-            INSERT INTO pratiche (id_pratica, data_apertura, data_chiusura, tipo, settore,
-                                  materia, referente, is_preventivo, note, created_at, updated_at)
-            VALUES (:id_pratica, :data_apertura, :data_chiusura, :tipo, :settore,
-                    :materia, :referente, :is_preventivo, :note, :created_at, :updated_at)
+    Merge incrementale di una tabella figlia (1→N) basato su uid.
+    - colmap: mappa {campo_UI: colonna_DB}
+    - rows devono contenere 'uid' stabile. Se manca lo generiamo (consigliato averlo in UI).
+    """
+    # 1) snapshot uids esistenti
+    existing = { r[0] for r in con.execute(f"SELECT uid FROM {table} WHERE {parent_col}=?", (parent_id,)) }
+    incoming_uids = set()
+
+    # 2) upsert/insert
+    for i, item in enumerate(rows or []):
+        uid = _ensure_uid(item)
+        incoming_uids.add(uid)
+        # costruisci coppie (colonna, valore)
+        cols = [parent_col, "uid", order_field]
+        vals = [parent_id, uid, i]
+        for src, col in colmap.items():
+            cols.append(col)
+            vals.append(item.get(src))
+        if uid in existing:
+            # UPDATE
+            set_list = [f"{c}=?" for c in cols[2:]]  # non cambiamo parent_col, uid
+            con.execute(f"UPDATE {table} SET {', '.join(set_list)} WHERE {parent_col}=? AND uid=?",
+                        vals[2:] + [parent_id, uid])
+        else:
+            # INSERT
+            placeholders = ",".join("?" for _ in cols)
+            con.execute(f"INSERT INTO {table}({', '.join(cols)}) VALUES({placeholders})", vals)
+
+    # 3) delete righe sparite (se richiesto)
+    if delete_missing:
+        to_delete = existing - incoming_uids
+        if to_delete:
+            con.executemany(f"DELETE FROM {table} WHERE {parent_col}=? AND uid=?",
+                            [(parent_id, u) for u in to_delete])
+
+
+
+
+def upsert_pratica(con, pratica: Dict[str, Any]) -> None:
+    pid = pratica.get('id_pratica') or pratica.get('id') or pratica.get('codice')
+    if not pid:
+        raise ValueError('pratica senza id_pratica')
+
+    anno = pratica.get('anno'); numero = pratica.get('numero')
+    tipo = pratica.get('tipo_pratica') or pratica.get('tipo')
+    settore = pratica.get('settore'); materia = pratica.get('materia')
+    ref_email = pratica.get('referente_email'); ref_nome = pratica.get('referente_nome')
+    preventivo = 1 if pratica.get('preventivo') else 0
+    note = pratica.get('note')
+    import json as _json
+    raw = _json.dumps(pratica, ensure_ascii=False)
+
+    with atomic_tx(con):
+        # master
+        con.execute("""
+            INSERT INTO pratiche
+              (id_pratica, anno, numero, tipo_pratica, settore, materia, referente_email, referente_nome, preventivo, note, updated_at, raw_json)
+            VALUES (?,?,?,?,?,?,?,?,?,?,datetime('now'),?)
             ON CONFLICT(id_pratica) DO UPDATE SET
-                data_apertura=excluded.data_apertura,
-                data_chiusura=excluded.data_chiusura,
-                tipo=excluded.tipo,
-                settore=excluded.settore,
-                materia=excluded.materia,
-                referente=excluded.referente,
-                is_preventivo=excluded.is_preventivo,
-                note=excluded.note,
-                updated_at=excluded.updated_at
-            ;
-            """,
-            {
-                'id_pratica': id_pratica,
-                'data_apertura': meta.get('data_apertura'),
-                'data_chiusura': meta.get('data_chiusura'),
-                'tipo': meta.get('tipo'),
-                'settore': meta.get('settore'),
-                'materia': meta.get('materia'),
-                'referente': meta.get('referente'),
-                'is_preventivo': 1 if meta.get('is_preventivo') else 0,
-                'note': meta.get('note'),
-                'created_at': meta.get('created_at'),
-                'updated_at': meta.get('updated_at') or meta.get('created_at'),
-            }
+              anno=excluded.anno, numero=excluded.numero, tipo_pratica=excluded.tipo_pratica,
+              settore=excluded.settore, materia=excluded.materia,
+              referente_email=excluded.referente_email, referente_nome=excluded.referente_nome,
+              preventivo=excluded.preventivo, note=excluded.note,
+              updated_at=datetime('now'), raw_json=excluded.raw_json
+        """, (pid, anno, numero, tipo, settore, materia, ref_email, ref_nome, preventivo, note, raw))
+
+        # avvocati (consigliato: avere 'uid' lato UI; se manca usiamo email+ruolo implicitamente stabili)
+        avv = pratica.get('avvocati') or pratica.get('pratica_avvocati') or []
+        if avv and any('uid' in x for x in avv):
+            merge_children(con,
+                table="pratica_avvocati", parent_col="id_pratica", parent_id=pid,
+                rows=avv,
+                colmap={"email":"email","nome":"nome","ruolo":"ruolo"},
+                order_field="pos"
+            )
+        else:
+            # fallback robusto su email+ruolo (mantiene stabilità senza uid)
+            con.execute("DELETE FROM pratica_avvocati WHERE id_pratica=?", (pid,))
+            for i, a in enumerate(avv):
+                con.execute("""INSERT INTO pratica_avvocati(id_pratica,uid,pos,email,nome,ruolo)
+                               VALUES(?,?,?,?,?,?)""",
+                            (pid, a.get('uid') or f"{a.get('email','')}|{a.get('ruolo','')}", i, a.get('email'), a.get('nome'), a.get('ruolo')))
+
+        # tariffe
+        merge_children(con,
+            table="pratica_tariffe", parent_col="id_pratica", parent_id=pid,
+            rows=pratica.get('tariffe') or pratica.get('pratica_tariffe') or [],
+            colmap={"tipo_tariffa":"tipo_tariffa","valore":"valore","note":"note"},
+            order_field="pos"
         )
-        # Upsert child lists via delete + insert
-        conn.execute("DELETE FROM pratica_avvocati WHERE id_pratica = ?", (id_pratica,))
-        for avv in pratica.get('avvocati', []):
-            conn.execute(
-                "INSERT INTO pratica_avvocati (id_pratica, ruolo, email, nome) VALUES (?,?,?,?)",
-                (id_pratica, avv.get('ruolo'), avv.get('email'), avv.get('nome'))
-            )
-        conn.execute("DELETE FROM pratica_tariffe WHERE id_pratica = ?", (id_pratica,))
-        for idx, tariffa in enumerate(pratica.get('tariffe', [])):
-            conn.execute(
-                "INSERT INTO pratica_tariffe (id_pratica, ordine, tipo_tariffa) VALUES (?,?,?)",
-                (id_pratica, idx, tariffa.get('tipo'))
-            )
-        conn.execute("DELETE FROM attivita WHERE id_pratica = ?", (id_pratica,))
-        for att in pratica.get('attivita', []):
-            conn.execute(
-                """
-                INSERT INTO attivita (id_pratica, inizio, fine, descrizione, durata_min,
-                                      tariffa_eur, tipo, note)
-                VALUES (?,?,?,?,?,?,?,?)
-                """,
-                (id_pratica,
-                 att.get('inizio'),
-                 att.get('fine'),
-                 att.get('descrizione'),
-                 att.get('durata_min'),
-                 att.get('tariffa_eur'),
-                 att.get('tipo'),
-                 att.get('note'))
-            )
-        conn.execute("DELETE FROM scadenze WHERE id_pratica = ?", (id_pratica,))
-        for scad in pratica.get('scadenze', []):
-            conn.execute(
-                "INSERT INTO scadenze (id_pratica, data_scadenza, descrizione, note, completata) VALUES (?,?,?,?,?)",
-                (id_pratica,
-                 scad.get('data_scadenza'),
-                 scad.get('descrizione'),
-                 scad.get('note'),
-                 1 if scad.get('completata') else 0)
-            )
-        conn.execute("DELETE FROM documenti WHERE id_pratica = ?", (id_pratica,))
-        for doc in pratica.get('documenti', []):
-            conn.execute(
-                "INSERT INTO documenti (id_pratica, path, categoria, note, hash) VALUES (?,?,?,?,?)",
-                (id_pratica,
-                 doc.get('path'),
-                 doc.get('categoria'),
-                 doc.get('note'),
-                 doc.get('hash'))
-            )
-    if should_close:
-        conn.close()
+
+        # attività
+        merge_children(con,
+            table="attivita", parent_col="id_pratica", parent_id=pid,
+            rows=pratica.get('attivita') or pratica.get('attività') or [],
+            colmap={"inizio":"inizio","fine":"fine","descrizione":"descrizione","durata_min":"durata_min","tariffa_eur":"tariffa_eur","tipo":"tipo","note":"note"},
+            order_field="pos"
+        )
+
+        # scadenze
+        merge_children(con,
+            table="scadenze", parent_col="id_pratica", parent_id=pid,
+            rows=pratica.get('scadenze') or [],
+            colmap={"data_scadenza":"data_scadenza","descrizione":"descrizione","note":"note","completata":"completata"},
+            order_field="pos"
+        )
+
+        # documenti
+        merge_children(con,
+            table="documenti", parent_col="id_pratica", parent_id=pid,
+            rows=pratica.get('documenti') or [],
+            colmap={"path":"path","categoria":"categoria","note":"note","hash":"hash"},
+            order_field="pos"
+        )
 
 
 def load_pratica(id_pratica: str, *, conn: Optional[Any] = None) -> Optional[Dict[str, Any]]:
@@ -221,61 +245,106 @@ def load_pratica(id_pratica: str, *, conn: Optional[Any] = None) -> Optional[Dic
     return pratica
 
 
-def sync_lookups_from_json(lib_json_path: Optional[str] = None, *, conn: Optional[Any] = None) -> None:
-    """Populate lookup tables from the JSON lookup files.
-
-    This helper reads lookup files from ``lib_json`` (``materie.json``,
-    ``settori.json``, ``tipo_pratica.json``, ``avvocati.json``) and
-    populates the corresponding tables.  Existing entries are replaced.
-
-    Args:
-        lib_json_path: Path to the directory containing the lookup JSON
-            files.  If omitted it defaults to ``lib_json`` relative to
-            the project root.
-        conn: Optional existing SQLite connection.
+def sync_lookups_from_json(lib_json_path: Optional[str] = None, *, con: Optional[Any] = None, db_path: Optional[str] = None) -> None:
     """
+    Popola le tabelle di lookup da lib_json.
+    Scrive su:
+      lookup_tipi_pratica(codice,label),
+      lookup_settori(codice,label),
+      lookup_materie(codice,label),
+      lookup_avvocati(email,nome).
+    Accetta formati JSON eterogenei (liste di stringhe, liste di dict, dict-mappa).
+    """
+    import json, os
+    from pathlib import Path
+    from db_core import get_connection as _get_connection, atomic_tx
+
+    # risolvi cartella lib_json
     if lib_json_path is None:
-        # Resolve relative to parent directory of this module
-        lib_json_path = os.path.join(os.path.dirname(__file__), '..', 'lib_json')
-    should_close = False
-    if conn is None:
-        conn = get_connection()
-        should_close = True
-    with atomic_tx(conn):
-        # Clear existing lookup entries
-        conn.execute("DELETE FROM lookup_tipi_pratica")
-        conn.execute("DELETE FROM lookup_settori")
-        conn.execute("DELETE FROM lookup_materie")
-        conn.execute("DELETE FROM lookup_avvocati")
-        # Load and insert each lookup file if it exists
-        def load_json(name):
-            path = os.path.join(lib_json_path, f"{name}.json")
-            if os.path.exists(path):
-                with open(path, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            return []
-        for item in load_json('tipo_pratica'):
-            conn.execute(
-                "INSERT INTO lookup_tipi_pratica (codice, descrizione) VALUES (?, ?)",
-                (item.get('codice'), item.get('descrizione'))
-            )
-        for item in load_json('settori'):
-            conn.execute(
-                "INSERT INTO lookup_settori (codice, descrizione) VALUES (?, ?)",
-                (item.get('codice'), item.get('descrizione'))
-            )
-        for item in load_json('materie'):
-            conn.execute(
-                "INSERT INTO lookup_materie (codice, descrizione) VALUES (?, ?)",
-                (item.get('codice'), item.get('descrizione'))
-            )
-        for item in load_json('avvocati'):
-            conn.execute(
-                "INSERT INTO lookup_avvocati (email, nome, ruolo) VALUES (?, ?, ?)",
-                (item.get('email'), item.get('nome'), item.get('ruolo'))
-            )
-    if should_close:
-        conn.close()
+        lib_json_path = os.environ.get('GP_LIB_JSON', str(Path(__file__).resolve().parent.parent / 'lib_json'))
+    lib = Path(lib_json_path)
+
+    def load_json(name: str):
+        p = lib / f'{name}.json'
+        if p.exists():
+            with p.open('r', encoding='utf-8') as f:
+                return json.load(f)
+        return None
+
+    def normalize_code_label(data):
+        out = []
+        if data is None: 
+            return out
+        if isinstance(data, list):
+            for x in data:
+                if isinstance(x, str):
+                    out.append((x, x))
+                elif isinstance(x, dict):
+                    code = x.get('codice') or x.get('id') or x.get('value') or x.get('code') or x.get('key')
+                    label= x.get('label')  or x.get('nome') or x.get('name')  or x.get('descrizione') or code
+                    if code:
+                        out.append((str(code), str(label) if label is not None else str(code)))
+        elif isinstance(data, dict):
+            for k, v in data.items():
+                if isinstance(v, str):
+                    out.append((str(k), v))
+                elif isinstance(v, dict):
+                    label = v.get('label') or v.get('nome') or v.get('name') or str(k)
+                    out.append((str(k), str(label)))
+                else:
+                    out.append((str(k), str(v)))
+        return out
+
+    must_close = False
+    if con is None:
+        if db_path is None:
+            db_path = os.environ.get('GP_DB_PATH', os.path.join('archivio','0gp.sqlite'))
+        cm = _get_connection(db_path)
+        con = cm.__enter__()
+        must_close = True
+
+    try:
+        with atomic_tx(con):
+            con.execute('DELETE FROM lookup_tipi_pratica')
+            con.execute('DELETE FROM lookup_settori')
+            con.execute('DELETE FROM lookup_materie')
+            con.execute('DELETE FROM lookup_avvocati')
+
+            tipi = normalize_code_label(load_json('tipo_pratica'))
+            if tipi:
+                con.executemany('INSERT OR IGNORE INTO lookup_tipi_pratica(codice,label) VALUES(?,?)', tipi)
+
+            sett = normalize_code_label(load_json('settori'))
+            if sett:
+                con.executemany('INSERT OR IGNORE INTO lookup_settori(codice,label) VALUES(?,?)', sett)
+
+            mate = normalize_code_label(load_json('materie'))
+            if mate:
+                con.executemany('INSERT OR IGNORE INTO lookup_materie(codice,label) VALUES(?,?)', mate)
+
+            avv = load_json('avvocati')
+            rows = []
+            if isinstance(avv, list):
+                for x in avv:
+                    if isinstance(x, dict):
+                        email = x.get('email') or x.get('mail') or x.get('id')
+                        nome  = x.get('nome')  or x.get('name') or x.get('label') or email
+                        if email:
+                            rows.append((str(email), str(nome)))
+            elif isinstance(avv, dict):
+                for email, v in avv.items():
+                    if isinstance(v, str):
+                        rows.append((str(email), v))
+                    elif isinstance(v, dict):
+                        nome = v.get('nome') or v.get('name') or v.get('label') or email
+                        rows.append((str(email), str(nome)))
+            if rows:
+                con.executemany('INSERT OR REPLACE INTO lookup_avvocati(email,nome) VALUES(?,?)', rows)
+    finally:
+        if must_close:
+            cm.__exit__(None, None, None)
+
+
 
 def ingest_archive_from_json(con, app_pratiche_dir: str) -> int:
     import os, json, re

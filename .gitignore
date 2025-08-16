@@ -30,3 +30,12 @@ lib_json_export/
 
 # Tieni i lookup statici (se presenti)
 !lib_json/
+# runtime / locali
+archivio/
+app_pratiche/
+*.sqlite
+*.db
+__pycache__/
+*.zip
+# backup locali
+repo_sqlite.user_original.py

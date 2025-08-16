@@ -1,66 +1,112 @@
-"""
-This is a modified version of the existing ``id_registry.py`` module to
-support generating sequential practice identifiers using the SQLite
-``id_counter`` table.  It falls back to reading from the old JSON
-counter for historical compatibility.  The public API remains the
-same as before: call :func:`next_id` with an integer year and it will
-return a string like ``"8_2025"``.
+# --- Retro-compat per apertura_pratica_popup.py (JSON + SQLite) ---
+from datetime import date
+from pathlib import Path
+import os, json
+from db_core import get_connection
 
-To apply this change in your project, replace the original
-``id_registry.py`` with this file.
-"""
-
-from __future__ import annotations
-
-import json
-import os
-from typing import Optional
-
-from db_core import get_connection, atomic_tx
-
-# Path to the legacy JSON id registry; adjust if different in your repo
-JSON_ID_REGISTRY = os.path.join(os.path.dirname(__file__), 'lib_json', 'id_pratiche.json')
-
-
-def next_id(anno: int, *, conn: Optional[object] = None) -> str:
-    """Return the next available practice identifier for the given year.
-
-    This function uses the SQLite ``id_counter`` table to atomically
-    allocate sequential identifiers per year.  If the year does not yet
-    exist in the table, it is initialised using the last value found in
-    the legacy JSON file (if it exists) or zero.  It then increments the
-    counter and returns a string of the form ``"<n>_<anno>"``.
-
-    Args:
-        anno: The year for which to generate an ID (e.g. 2025).
-        conn: Optional existing SQLite connection.
-
-    Returns:
-        A string representing the next available ID (e.g. ``"9_2025"``).
+def load_next_id():
     """
-    should_close = False
-    if conn is None:
-        conn = get_connection()
-        should_close = True
-    with atomic_tx(conn):
-        row = conn.execute("SELECT last_n FROM id_counter WHERE anno = ?", (anno,)).fetchone()
-        if row is None:
-            # Determine starting value from JSON if available
-            start_n = 0
-            if os.path.exists(JSON_ID_REGISTRY):
-                with open(JSON_ID_REGISTRY, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                # keys are like "8_2025"; filter those matching the year
-                values = [int(k.split('_')[0]) for k in data.keys() if k.endswith(str(anno))]
-                if values:
-                    start_n = max(values)
-            conn.execute("INSERT INTO id_counter (anno, last_n) VALUES (?, ?)", (anno, start_n))
-            current_n = start_n + 1
-            conn.execute("UPDATE id_counter SET last_n = ? WHERE anno = ?", (current_n, anno))
-        else:
-            current_n = row['last_n'] + 1
-            conn.execute("UPDATE id_counter SET last_n = ? WHERE anno = ?", (current_n, anno))
-        new_id = f"{current_n}_{anno}"
-    if should_close:
-        conn.close()
-    return new_id
+    Restituisce (prossimo_numero, anno_corrente).
+    Priorità: SQLite(id_counter) -> SQLite(pratiche.max(numero)) -> lib_json/id_pratiche.json -> (1, anno)
+    """
+    anno = date.today().year
+    db_path = os.environ.get('GP_DB_PATH', os.path.join('archivio', '0gp.sqlite'))
+
+    # 1) Prova su SQLite: id_counter
+    try:
+        with get_connection(db_path) as con:
+            try:
+                row = con.execute("SELECT last_n FROM id_counter WHERE anno=?", (anno,)).fetchone()
+            except Exception:
+                row = None
+            if row:
+                return int(row[0]) + 1, anno
+            # 2) Fallback: pratiche
+            try:
+                r2 = con.execute("SELECT MAX(numero) FROM pratiche WHERE anno=?", (anno,)).fetchone()
+                maxn = int(r2[0]) if r2 and r2[0] is not None else 0
+                return maxn + 1, anno
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # 3) Ultimo fallback: JSON storico
+    try:
+        p = Path('lib_json') / 'id_pratiche.json'
+        if p.exists():
+            data = json.loads(p.read_text(encoding='utf-8'))
+            maxn = 0
+            for el in data if isinstance(data, list) else []:
+                try:
+                    a = int(str(el.get('anno_pratica') or '0'))
+                    if a == anno:
+                        n = int(str(el.get('num_pratica') or '0'))
+                        if n > maxn:
+                            maxn = n
+                except Exception:
+                    continue
+            return maxn + 1, anno
+    except Exception:
+        pass
+
+    return 1, anno
+
+def persist_after_save(num: int, anno: int, nome_pratica: str, percorso_pratica: str, created_by: str | None = None):
+    """
+    Aggiorna SQLite(id_counter) e sincronizza lib_json/id_pratiche.json
+    per compatibilità con l’elenco pratiche della UI.
+    """
+    db_path = os.environ.get('GP_DB_PATH', os.path.join('archivio', '0gp.sqlite'))
+
+    # 1) Aggiorna id_counter su SQLite (se disponibile)
+    try:
+        with get_connection(db_path) as con:
+            try:
+                con.execute("""
+                    INSERT INTO id_counter(anno,last_n) VALUES(?,?)
+                    ON CONFLICT(anno) DO UPDATE SET last_n=excluded.last_n
+                """, (int(anno), int(num)))
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # 2) Aggiorna elenco storico JSON (usato dalla UI originale)
+    try:
+        lib = Path('lib_json'); lib.mkdir(parents=True, exist_ok=True)
+        fp = lib / 'id_pratiche.json'
+        data = []
+        if fp.exists():
+            try:
+                data = json.loads(fp.read_text(encoding='utf-8'))
+                if not isinstance(data, list):
+                    data = []
+            except Exception:
+                data = []
+        # aggiorna se presente, altrimenti append
+        found = False
+        for el in data:
+            try:
+                if int(str(el.get('num_pratica') or -1)) == int(num) and int(str(el.get('anno_pratica') or -1)) == int(anno):
+                    el['nome_pratica'] = nome_pratica
+                    el['percorso_pratica'] = percorso_pratica
+                    el['link_cartella'] = percorso_pratica
+                    found = True
+                    break
+            except Exception:
+                continue
+        if not found:
+            data.append({
+                'num_pratica': int(num),
+                'anno_pratica': int(anno),
+                'nome_pratica': nome_pratica,
+                'percorso_pratica': percorso_pratica,
+                'link_cartella': percorso_pratica,
+            })
+        tmp = fp.with_suffix('.json.tmp')
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+        os.replace(tmp, fp)
+    except Exception:
+        pass
+

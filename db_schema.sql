@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS pratiche (
   note TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT,
-  raw_json TEXT
+  raw_json TEXT   -- snapshot per round-trip UI
 );
 
 CREATE TABLE IF NOT EXISTS pratica_avvocati (
@@ -64,7 +64,7 @@ CREATE INDEX IF NOT EXISTS idx_scadenze_pratica ON scadenze(id_pratica);
 CREATE TABLE IF NOT EXISTS documenti (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   id_pratica TEXT NOT NULL REFERENCES pratiche(id_pratica) ON DELETE CASCADE,
-  path TEXT,
+  path TEXT,         -- percorso file nel FS (es. app_pratiche/<id>/documenti/…)
   categoria TEXT,
   note TEXT,
   hash TEXT
@@ -80,11 +80,3 @@ CREATE TABLE IF NOT EXISTS history (
 );
 CREATE INDEX IF NOT EXISTS idx_history_pratica ON history(id_pratica);
 
-CREATE TABLE IF NOT EXISTS lookup_tipi_pratica ( codice TEXT PRIMARY KEY, label TEXT );
-CREATE TABLE IF NOT EXISTS lookup_settori       ( codice TEXT PRIMARY KEY, label TEXT );
-CREATE TABLE IF NOT EXISTS lookup_materie       ( codice TEXT PRIMARY KEY, label TEXT );
-CREATE TABLE IF NOT EXISTS lookup_avvocati      ( email  TEXT PRIMARY KEY, nome  TEXT );
-
-CREATE VIEW IF NOT EXISTS v_pratiche_basic AS
-SELECT p.id_pratica, p.anno, p.numero, p.tipo_pratica, p.settore, p.materia, p.referente_nome, p.referente_email, p.created_at, p.updated_at
-FROM pratiche p;
