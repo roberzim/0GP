@@ -1,0 +1,108 @@
+
+    <!doctype html>
+    <html lang="it">
+    <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <title>Smoke Report Pratiche — 20250813_205631</title>
+      <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+        h1 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #e5e7eb; padding: 8px 10px; vertical-align: top; }
+        th { background: #f8fafc; text-align: left; }
+        td.center { text-align: center; white-space: nowrap; }
+        code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
+        .ok { color: #166534; font-weight: 600; }
+        .ko { color: #b91c1c; font-weight: 600; }
+        details > summary { cursor: pointer; }
+        pre { white-space: pre-wrap; word-break: break-word; background:#0b1021; color:#e2e8f0; padding:10px; border-radius:6px; }
+      </style>
+    </head>
+    <body>
+      <h1>Smoke Report Pratiche</h1>
+      <p>Data: 13/08/2025 20:56:31</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>ID</th>
+            <th>Backup</th>
+            <th>Timestamped</th>
+            <th>File creati</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+    <tr>
+      <td><code>no-collision</code></td>
+      <td>n/d</td>
+      <td class="center ko">NO</td>
+      <td class="center ko">NO</td>
+      <td>—</td>
+      <td><details><summary>log</summary><pre>Backup registro: lib_json/id_pratiche.json.smokebak
+Registro ripristinato dal backup.
+Traceback (most recent call last):
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 178, in &lt;module&gt;
+    main()
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 145, in main
+    pratica, ts_json, bkp_json = simulate_save(num, anno, pratica_name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 117, in simulate_save
+    ts_json, bkp_json = save_pratica_json(pratica_data, anagrafica_data={})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: save_pratica_json() got an unexpected keyword argument &#x27;anagrafica_data&#x27;
+</pre></details></td>
+    </tr>
+    
+
+    <tr>
+      <td><code>overwrite</code></td>
+      <td>n/d</td>
+      <td class="center ko">NO</td>
+      <td class="center ko">NO</td>
+      <td>—</td>
+      <td><details><summary>log</summary><pre>Backup registro: lib_json/id_pratiche.json.smokebak
+Registro ripristinato dal backup.
+Traceback (most recent call last):
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 178, in &lt;module&gt;
+    main()
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 152, in main
+    pratica, ts_json, bkp_json = simulate_save(num, anno, pratica_name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 117, in simulate_save
+    ts_json, bkp_json = save_pratica_json(pratica_data, anagrafica_data={})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: save_pratica_json() got an unexpected keyword argument &#x27;anagrafica_data&#x27;
+</pre></details></td>
+    </tr>
+    
+
+    <tr>
+      <td><code>next-id</code></td>
+      <td>n/d</td>
+      <td class="center ko">NO</td>
+      <td class="center ko">NO</td>
+      <td>—</td>
+      <td><details><summary>log</summary><pre>Backup registro: lib_json/id_pratiche.json.smokebak
+Registro ripristinato dal backup.
+Traceback (most recent call last):
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 178, in &lt;module&gt;
+    main()
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 160, in main
+    pratica, ts_json, bkp_json = simulate_save(new_num, anno, pratica_name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 117, in simulate_save
+    ts_json, bkp_json = save_pratica_json(pratica_data, anagrafica_data={})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: save_pratica_json() got an unexpected keyword argument &#x27;anagrafica_data&#x27;
+</pre></details></td>
+    </tr>
+    
+        </tbody>
+      </table>
+      <p style="margin-top:24px;color:#64748b">Generato da <code>tools/smoke_report_pratiche.py</code>.</p>
+    </body>
+    </html>
+    

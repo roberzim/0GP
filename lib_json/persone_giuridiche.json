@@ -1,0 +1,36 @@
+{
+  "persone_giuridiche": [
+    {
+      "Posizione": "studio_legale_associato_TiL",
+      "Denominazione": "theinnovationlawyers.eu - Studio Legale Associato",
+      "Cod_fisc": "18187271004",
+      "P_IVA": "18187271004",
+      "Indirizzo_legale": "Via Properzio, 5, 00193 - ROMA (RM)",
+      "Altro_indirizzo": "",
+      "PEC": "",
+      "Email": "info@theinnovationlawyers.eu",
+      "Num_telefoni": "tel. +39 06 92957605; cell. +39 328 0649518, fax +39 06 92933212",
+      "Iscrizione_camerale": "",
+      "Nome_rappresentante": "Chiara",
+      "Cognome_rappresentante": "Cremona",
+      "CodFisc_rappresentante": "CRMCHR75M52L319K",
+      "Note": "altro rappresentante: Claudio Palmieri"
+    },
+    {
+      "Denominazione": "xx",
+      "Cod_fisc": "xx",
+      "P_IVA": "aa",
+      "Indirizzo_legale": "aa",
+      "Altro_indirizzo": "aa",
+      "PEC": "aa",
+      "Email": "aa",
+      "Num_telefoni": "aa",
+      "Iscrizione_camerale": "aa",
+      "Nome_rappresentante": "aa",
+      "Cognome_rappresentante": "aa",
+      "CodFisc_rappresentante": "aa",
+      "Note": "aa",
+      "Posizione": "Attore"
+    }
+  ]
+}

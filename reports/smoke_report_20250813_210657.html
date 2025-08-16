@@ -1,0 +1,132 @@
+
+    <!doctype html>
+    <html lang="it">
+    <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1"/>
+      <title>Smoke Report Pratiche — 20250813_210657</title>
+      <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+        h1 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #e5e7eb; padding: 8px 10px; vertical-align: top; }
+        th { background: #f8fafc; text-align: left; }
+        td.center { text-align: center; white-space: nowrap; }
+        code { background: #f1f5f9; padding: 2px 4px; border-radius: 4px; }
+        .ok { color: #166534; font-weight: 600; }
+        .ko { color: #b91c1c; font-weight: 600; }
+        details > summary { cursor: pointer; }
+        pre { white-space: pre-wrap; word-break: break-word; background:#0b1021; color:#e2e8f0; padding:10px; border-radius:6px; }
+      </style>
+    </head>
+    <body>
+      <h1>Smoke Report Pratiche</h1>
+      <p>Data: 13/08/2025 21:06:58</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>ID</th>
+            <th>Backup</th>
+            <th>Timestamped</th>
+            <th>File creati</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+    <tr>
+      <td><code>no-collision</code></td>
+      <td>n/d</td>
+      <td class="center ko">NO</td>
+      <td class="center ko">NO</td>
+      <td>—</td>
+      <td><details><summary>log</summary><pre>Backup registro: lib_json/id_pratiche.json.smokebak
+Registro ripristinato dal backup.
+Traceback (most recent call last):
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 195, in &lt;module&gt;
+    main()
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 161, in main
+    pratica, ts_json, bkp_json = simulate_save(num, anno, pratica_name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 133, in simulate_save
+    ts_json, bkp_json = _write_pratica_json(pratica_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 116, in _write_pratica_json
+    ts_path.write_text(json.dumps(pratica_data, ensure_ascii=False, indent=2), encoding=&quot;utf-8&quot;)
+  File &quot;/home/robert/anaconda3/lib/python3.12/pathlib.py&quot;, line 1047, in write_text
+    with self.open(mode=&#x27;w&#x27;, encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/anaconda3/lib/python3.12/pathlib.py&quot;, line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: &#x27;app_pratiche/2/2025_gp_20250813_210657.json&#x27;
+</pre></details></td>
+    </tr>
+    
+
+    <tr>
+      <td><code>overwrite</code></td>
+      <td>n/d</td>
+      <td class="center ko">NO</td>
+      <td class="center ko">NO</td>
+      <td>—</td>
+      <td><details><summary>log</summary><pre>Backup registro: lib_json/id_pratiche.json.smokebak
+Registro ripristinato dal backup.
+Traceback (most recent call last):
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 195, in &lt;module&gt;
+    main()
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 168, in main
+    pratica, ts_json, bkp_json = simulate_save(num, anno, pratica_name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 133, in simulate_save
+    ts_json, bkp_json = _write_pratica_json(pratica_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 116, in _write_pratica_json
+    ts_path.write_text(json.dumps(pratica_data, ensure_ascii=False, indent=2), encoding=&quot;utf-8&quot;)
+  File &quot;/home/robert/anaconda3/lib/python3.12/pathlib.py&quot;, line 1047, in write_text
+    with self.open(mode=&#x27;w&#x27;, encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/anaconda3/lib/python3.12/pathlib.py&quot;, line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: &#x27;app_pratiche/2/2025_gp_20250813_210657.json&#x27;
+</pre></details></td>
+    </tr>
+    
+
+    <tr>
+      <td><code>next-id</code></td>
+      <td>n/d</td>
+      <td class="center ko">NO</td>
+      <td class="center ko">NO</td>
+      <td>—</td>
+      <td><details><summary>log</summary><pre>Backup registro: lib_json/id_pratiche.json.smokebak
+Registro ripristinato dal backup.
+Traceback (most recent call last):
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 195, in &lt;module&gt;
+    main()
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 176, in main
+    pratica, ts_json, bkp_json = simulate_save(new_num, anno, pratica_name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 133, in simulate_save
+    ts_json, bkp_json = _write_pratica_json(pratica_data)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/tools/smoke_suite_pratiche.py&quot;, line 116, in _write_pratica_json
+    ts_path.write_text(json.dumps(pratica_data, ensure_ascii=False, indent=2), encoding=&quot;utf-8&quot;)
+  File &quot;/home/robert/anaconda3/lib/python3.12/pathlib.py&quot;, line 1047, in write_text
+    with self.open(mode=&#x27;w&#x27;, encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &quot;/home/robert/anaconda3/lib/python3.12/pathlib.py&quot;, line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: &#x27;app_pratiche/3/2025_gp_20250813_210658.json&#x27;
+</pre></details></td>
+    </tr>
+    
+        </tbody>
+      </table>
+      <p style="margin-top:24px;color:#64748b">Generato da <code>tools/smoke_report_pratiche.py</code>.</p>
+    </body>
+    </html>
+    

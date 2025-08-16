@@ -1,0 +1,130 @@
+{
+  "id_pratica": "8/2025",
+  "nome_pratica": "sssssss",
+  "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/novad_14082025/novad_082025",
+  "data_apertura": "['2025-08-14', 'add-day', {'year': 2025, 'month': 8, 'day': 14}]",
+  "data_chiusura": "['2025-08-27', 'add-day', {'year': 2025, 'month': 8, 'day': 27}]",
+  "valore_pratica": "sssssssssssssssss",
+  "tipo_pratica": "{'value': 0, 'label': 'Contenzioso'}",
+  "settore_pratica": "{'value': 8, 'label': 'Agroalimentare'}",
+  "materia_pratica": "{'value': 0, 'label': 'Civile'}",
+  "tipo_tariffe": [
+    "{'value': 2, 'label': 'Forfait'}"
+  ],
+  "avvocato_referente": "{'value': 0, 'label': 'Claudio Palmieri'}",
+  "avvocato_in_mandato": [
+    "{'value': 1, 'label': 'Chiara Cremona'}"
+  ],
+  "preventivo_inviato": true,
+  "note": "",
+  "tariffe_contenzioso": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "tariffe_stragiudiziale": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "preventivi": {},
+  "preventivi_stragiudiziale": {},
+  "scadenze": [
+    {
+      "descrizione": "",
+      "data_inizio": "",
+      "data_scadenza": "",
+      "minuti_prima_allert": 30,
+      "durata_stimata": 0,
+      "durata_effettiva": null,
+      "scadenza": false,
+      "tariffa_oraria": 300.0,
+      "tariffa_stimata": "0.00",
+      "tariffa_effettiva": "0.00",
+      "id_evento": ""
+    }
+  ],
+  "totale_contenzioso": 0.0,
+  "totale_stragiudiziale": 0.0,
+  "totale_generale": 0.0,
+  "updated_at": "2025-08-14T22:04:35",
+  "anagrafica": {
+    "tipo_cliente": "Persona",
+    "persone_giuridiche": [],
+    "persone_fisiche": []
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "updated_at": "2025-08-13T00:35:08.051183+00:00",
+  "source": {
+    "label": "ISO 4217 (Wikipedia) + BCE reference set",
+    "wikipedia_url": "https://it.wikipedia.org/wiki/ISO_4217",
+    "notes": "Questo file include almeno le valute supportate dalla BCE; può essere esteso con tutte le ISO attive."
+  },
+  "valute": [
+    {
+      "code": "USD",
+      "name": "US dollar",
+      "ecb_supported": true
+    },
+    {
+      "code": "JPY",
+      "name": "Japanese yen",
+      "ecb_supported": true
+    },
+    {
+      "code": "BGN",
+      "name": "Bulgarian lev",
+      "ecb_supported": true
+    },
+    {
+      "code": "CZK",
+      "name": "Czech koruna",
+      "ecb_supported": true
+    },
+    {
+      "code": "DKK",
+      "name": "Danish krone",
+      "ecb_supported": true
+    },
+    {
+      "code": "GBP",
+      "name": "Pound sterling",
+      "ecb_supported": true
+    },
+    {
+      "code": "HUF",
+      "name": "Hungarian forint",
+      "ecb_supported": true
+    },
+    {
+      "code": "PLN",
+      "name": "Polish zloty",
+      "ecb_supported": true
+    },
+    {
+      "code": "RON",
+      "name": "Romanian leu",
+      "ecb_supported": true
+    },
+    {
+      "code": "SEK",
+      "name": "Swedish krona",
+      "ecb_supported": true
+    },
+    {
+      "code": "CHF",
+      "name": "Swiss franc",
+      "ecb_supported": true
+    },
+    {
+      "code": "ISK",
+      "name": "Icelandic krona",
+      "ecb_supported": true
+    },
+    {
+      "code": "NOK",
+      "name": "Norwegian krone",
+      "ecb_supported": true
+    },
+    {
+      "code": "TRY",
+      "name": "Turkish lira",
+      "ecb_supported": true
+    },
+    {
+      "code": "AUD",
+      "name": "Australian dollar",
+      "ecb_supported": true
+    },
+    {
+      "code": "BRL",
+      "name": "Brazilian real",
+      "ecb_supported": true
+    },
+    {
+      "code": "CAD",
+      "name": "Canadian dollar",
+      "ecb_supported": true
+    },
+    {
+      "code": "CNY",
+      "name": "Chinese yuan renminbi",
+      "ecb_supported": true
+    },
+    {
+      "code": "HKD",
+      "name": "Hong Kong dollar",
+      "ecb_supported": true
+    },
+    {
+      "code": "IDR",
+      "name": "Indonesian rupiah",
+      "ecb_supported": true
+    },
+    {
+      "code": "ILS",
+      "name": "Israeli shekel",
+      "ecb_supported": true
+    },
+    {
+      "code": "INR",
+      "name": "Indian rupee",
+      "ecb_supported": true
+    },
+    {
+      "code": "KRW",
+      "name": "South Korean won",
+      "ecb_supported": true
+    },
+    {
+      "code": "MXN",
+      "name": "Mexican peso",
+      "ecb_supported": true
+    },
+    {
+      "code": "MYR",
+      "name": "Malaysian ringgit",
+      "ecb_supported": true
+    },
+    {
+      "code": "NZD",
+      "name": "New Zealand dollar",
+      "ecb_supported": true
+    },
+    {
+      "code": "PHP",
+      "name": "Philippine peso",
+      "ecb_supported": true
+    },
+    {
+      "code": "SGD",
+      "name": "Singapore dollar",
+      "ecb_supported": true
+    },
+    {
+      "code": "THB",
+      "name": "Thai baht",
+      "ecb_supported": true
+    },
+    {
+      "code": "ZAR",
+      "name": "South African rand",
+      "ecb_supported": true
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+
+name: Validate pratiche JSON
+
+on:
+  push:
+    paths:
+      - 'archivio/pratiche/**'
+      - 'models.py'
+      - 'validate_json.py'
+  pull_request:
+    paths:
+      - 'archivio/pratiche/**'
+      - 'models.py'
+      - 'validate_json.py'
+  workflow_dispatch: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic
+
+      - name: Validate JSON archive
+        run: |
+          python validate_json.py --root ./archivio/pratiche

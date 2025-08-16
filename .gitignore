@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env
+.env.*
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Build / packaging
+dist/
+build/
+*.egg-info/
+
+# Dati runtime del progetto 0GP: NON versionare
+archivio/
+app_pratiche/
+lib_json_export/
+*.sqlite
+*.db
+*.bak
+*.zip
+*.jsonl
+
+# Tieni i lookup statici (se presenti)
+!lib_json/

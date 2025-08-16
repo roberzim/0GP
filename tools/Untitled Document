@@ -1,0 +1,74 @@
+# Scenario 1: nessuna collisione
+python3 tools/smoke_suite_pratiche.py --mode no-collision
+
+# Scenario 2: collisione → sovrascrivi lo stesso ID
+python3 tools/smoke_suite_pratiche.py --mode overwrite
+
+# Scenario 3: collisione → usa primo ID successivo
+python3 tools/smoke_suite_pratiche.py --mode next-id
+
+Opzionale, se vuoi lasciare il registro com’è dopo il test (senza ripristinare il backup):
+
+python3 tools/smoke_suite_pratiche.py --mode overwrite --keep
+
+Cosa fa esattamente
+
+    Fa un backup di lib_json/id_pratiche.json (file .smokebak)
+
+    Prepara lo stato (se serve, crea una collisione sul prossimo ID)
+
+    Esegue un salvataggio “simulato” come la UI:
+
+        crea la cartella pratica con sottocartelle
+
+        chiama save_pratica_json(...)
+
+        chiama persist_after_save(...)
+
+        esegue reindex(root="archivio")
+
+    Verifica che esista:
+
+        il backup canonico archivio/backups_json/<ID>_gp.json
+
+        almeno un timestamped app_pratiche/<ID>_gp_<timestamp>.json
+
+    Ripristina il registro dal backup (a meno che tu usi --keep)
+
+Se vuoi, posso aggiungere un piccolo report HTML con i risultati dei test e link ai file creati. 
+
+
+
+Come usarlo
+
+    Copia i due file nella cartella tools/ della tua repo.
+
+    Dalla root del progetto, esegui:
+
+python3 tools/smoke_report_pratiche.py
+
+    Lo script esegue in sequenza:
+
+        --mode no-collision
+
+        --mode overwrite
+
+        --mode next-id
+
+    Output: un file HTML in reports/, ad es.:
+
+reports/smoke_report_20250813_153012.html
+
+Aprilo nel browser: troverai una tabella con:
+
+    scenario
+
+    ID usato
+
+    stato backup/timestamped (OK/NO)
+
+    link ai file creati (backup canonico e JSON timestamped)
+
+    log dello scenario (espandibile)
+
+Se vuoi che il report esegua solo alcuni scenari o personalizzi i percorsi, dimmi pure e lo adatto. 

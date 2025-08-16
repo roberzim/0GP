@@ -1,0 +1,194 @@
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+[2025-08-14 21:45:47] UNCAUGHT EXCEPTION
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 270, in <module>
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/ui_run.py", line 239, in run
+    Server.instance.run()
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/server.py", line 36, in run
+    super().run(sockets=sockets)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+[2025-08-14 21:48:19] UNCAUGHT EXCEPTION
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 251, in <module>
+    ui.run(title='Studio Legale Associato - Gestione Pratiche', favicon='⚖️', reload=False)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/ui_run.py", line 239, in run
+    Server.instance.run()
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/server.py", line 36, in run
+    super().run(sockets=sockets)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+[2025-08-14 21:54:37] UNCAUGHT EXCEPTION
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 251, in <module>
+    try:
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/ui_run.py", line 239, in run
+    Server.instance.run()
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/server.py", line 36, in run
+    super().run(sockets=sockets)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+[2025-08-14 21:59:12] UNCAUGHT EXCEPTION
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 287, in <module>
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/ui_run.py", line 239, in run
+    Server.instance.run()
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/server.py", line 36, in run
+    super().run(sockets=sockets)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+[2025-08-14 22:02:23] UNCAUGHT EXCEPTION
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 325, in <module>
+    ui.run(title='Studio Legale Associato - Gestione Pratiche', favicon='⚖️', reload=False)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/ui_run.py", line 239, in run
+    Server.instance.run()
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/server.py", line 36, in run
+    super().run(sockets=sockets)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+[2025-08-14 22:07:19] UNCAUGHT EXCEPTION
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 325, in <module>
+    ui.run(title='Studio Legale Associato - Gestione Pratiche', favicon='⚖️', reload=False)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/ui_run.py", line 239, in run
+    Server.instance.run()
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/server.py", line 36, in run
+    super().run(sockets=sockets)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+[2025-08-14 23:07:37] UNCAUGHT EXCEPTION
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1518, in uvloop.loop.Loop.run_until_complete
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 325, in <module>
+    ui.run(title='Studio Legale Associato - Gestione Pratiche', favicon='⚖️', reload=False)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/ui_run.py", line 239, in run
+    Server.instance.run()
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/nicegui/server.py", line 36, in run
+    super().run(sockets=sockets)
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/site-packages/uvicorn/server.py", line 67, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gestione_pratiche/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080

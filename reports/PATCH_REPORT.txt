@@ -1,0 +1,14 @@
+Patch bundle — files will overwrite into 0GP/
+
+Includes:
+ - app_pyside6.py
+ - repo.py
+ - apertura_pratica_popup.py
+ - salva_tutto.py
+ - json_only_loader.py
+ - create_demo_pratica.py
+ - preventivi_tariffe.py
+ - scadenza_attivita.py
+ - documentazione.py
+ - anagrafica.py
+ - dual_save.py
