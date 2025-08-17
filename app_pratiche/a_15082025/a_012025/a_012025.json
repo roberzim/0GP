@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": 1,
+  "codice": "a_012025",
+  "cliente": null,
+  "stato": "aperta",
+  "data_apertura": "2025-08-15T00:00:00",
+  "note": null,
+  "id_pratica": "1/2025",
+  "avvocato_referente": "Claudio Palmieri",
+  "tipo_pratica": "Contenzioso",
+  "materia_pratica": "Civile",
+  "posizione": "Cliente",
+  "settore_pratica": "Tecnologia",
+  "valuta": "US dollar",
+  "avvocato": "Claudio Palmieri",
+  "cartella_cliente": "a_15082025",
+  "nome_pratica": "a_012025",
+  "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/a_15082025/a_012025"
+}

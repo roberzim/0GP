@@ -1182,3 +1182,263 @@ NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
 NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
 NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
 NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Task exception was never retrieved
+future: <Task finished name='Task-91' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-97' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-102' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-106' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-109' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-117' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-122' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Task exception was never retrieved
+future: <Task finished name='Task-113' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-119' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-123' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-126' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+Task exception was never retrieved
+future: <Task finished name='Task-129' coro=<inject_import_sql_carica.<locals>._do_import() done, defined at /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py:1804> exception=RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\nThis may happen if you try to create UI from a background task.\nTo fix this, enter the target slot explicitly using `with container_element:`.')>
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 1816, in _do_import
+    ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/functions/notify.py", line 52, in notify
+    client = context.client
+             ^^^^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 31, in client
+    return self.slot.parent.client
+           ^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/context.py", line 23, in slot
+    raise RuntimeError('The current slot cannot be determined because the slot stack for this task is empty.\n'
+                       'This may happen if you try to create UI from a background task.\n'
+                       'To fix this, enter the target slot explicitly using `with container_element:`.')
+RuntimeError: The current slot cannot be determined because the slot stack for this task is empty.
+This may happen if you try to create UI from a background task.
+To fix this, enter the target slot explicitly using `with container_element:`.
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+'_GeneratorContextManager' object has no attribute 'cursor'
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 2043, in _do_import
+    record = _load_pratica_db(pid)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 186, in load_pratica
+    cur = conn.cursor()
+          ^^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'cursor'
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080

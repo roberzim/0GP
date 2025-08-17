@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "data": "2025-08-11",
+    "ambito": "Giudizi innanzi al Tribunale Amministrativo Regionale",
+    "scaglione": "20000000.01-22000000.00",
+    "tipoTariffario": "stragiudiziale",
+    "ivaApplicata": true,
+    "cpaApplicata": true,
+    "ritenutaApplicata": "30%"
+  },
+  "fasi": [
+    {
+      "nome": "Prestazioni di assistenza stragiudiziale",
+      "selezionata": true,
+      "valoreMedio": 0,
+      "riduzionePercentuale": 0,
+      "aumentoPercentuale": 0,
+      "compensoParziale": 111122.82
+    }
+  ],
+  "compensoTabellare": 111122.82,
+  "prospettoFinale": [
+    {
+      "descrizione": "Compenso tabellare",
+      "importo": 111122.82
+    },
+    {
+      "descrizione": "Spese di trasferta",
+      "importo": 10000
+    },
+    {
+      "descrizione": "Spese generali (15%)",
+      "importo": 18168.423
+    },
+    {
+      "descrizione": "Cassa Avvocati (4%)",
+      "importo": 5571.64972
+    },
+    {
+      "descrizione": "IVA (22%)",
+      "importo": 31869.836398400003
+    },
+    {
+      "descrizione": "Ritenuta d'acconto (30%)",
+      "importo": -41787.3729
+    },
+    {
+      "descrizione": "TOTALE DOCUMENTO",
+      "importo": 134945.36
+    }
+  ],
+  "totaleDocumento": 134945.36
+}

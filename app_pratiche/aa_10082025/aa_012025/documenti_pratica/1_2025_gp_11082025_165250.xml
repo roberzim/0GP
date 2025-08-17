@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Pratica>
+  <ID_pratica>1/2025</ID_pratica>
+  <tab_Pratica>
+    <Nome_pratica>aa_012025</Nome_pratica>
+    <Data_apertura>2025-08-11</Data_apertura>
+    <Data_chiusura>2025-08-27</Data_chiusura>
+    <Valore_pratica>00000000000</Valore_pratica>
+    <Tipo_pratica>Contenzioso</Tipo_pratica>
+    <Settore_pratica>{'value': 0, 'label': 'Tecnologia'}</Settore_pratica>
+    <Materia_pratica>{'value': 0, 'label': 'Civile'}</Materia_pratica>
+    <Tipo_tariffa>Base</Tipo_tariffa>
+    <Tipo_tariffa>Tabelle ministeriali</Tipo_tariffa>
+    <Tipo_tariffa>Abbonamento</Tipo_tariffa>
+    <Avvocato_referente>Claudio Palmieri</Avvocato_referente>
+    <Avvocato_in_mandato>Claudio Palmieri &amp; Chiara Cremona</Avvocato_in_mandato>
+    <Preventivo_inviato>True</Preventivo_inviato>
+  </tab_Pratica>
+  <tab_Anagrafica>
+    <Tipo_cliente>Persona</Tipo_cliente>
+  </tab_Anagrafica>
+  <tab_preventivi_e_tariffe>
+    <Totale_Contenzioso>0.00</Totale_Contenzioso>
+    <Totale_Stragiudiziale>0.00</Totale_Stragiudiziale>
+    <Totale_Generale>0.00</Totale_Generale>
+  </tab_preventivi_e_tariffe>
+  <tab_Attività>
+    <Riga_Attivita>
+      <ID_attività />
+      <Descrizione_attività />
+      <Data_inizio />
+      <Data_scadenza />
+      <Scadenza_flag>No</Scadenza_flag>
+      <Durata_stimata_min>0</Durata_stimata_min>
+      <Durata_effettiva_min />
+      <Tariffa_oraria_eur_h>300.0</Tariffa_oraria_eur_h>
+      <Tariffa_stimata_eur>0.00</Tariffa_stimata_eur>
+      <Tariffa_effettiva_eur>0.00</Tariffa_effettiva_eur>
+      <Scadenza_prossima />
+      <Evasa />
+    </Riga_Attivita>
+  </tab_Attività>
+</Pratica>

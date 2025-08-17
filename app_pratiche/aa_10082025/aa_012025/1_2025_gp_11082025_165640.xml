@@ -1,0 +1,181 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Pratica>
+  <ID_pratica>1/2025</ID_pratica>
+  <tab_Pratica>
+    <Nome_pratica>aa_012025</Nome_pratica>
+    <Data_apertura>2025-08-11</Data_apertura>
+    <Data_chiusura>2025-08-27</Data_chiusura>
+    <Valore_pratica>00000000000</Valore_pratica>
+    <Tipo_pratica>Contenzioso</Tipo_pratica>
+    <Settore_pratica>{'value': 0, 'label': 'Tecnologia'}</Settore_pratica>
+    <Materia_pratica>{'value': 0, 'label': 'Civile'}</Materia_pratica>
+    <Tipo_tariffa>Base</Tipo_tariffa>
+    <Tipo_tariffa>Tabelle ministeriali</Tipo_tariffa>
+    <Tipo_tariffa>Abbonamento</Tipo_tariffa>
+    <Avvocato_referente>Claudio Palmieri</Avvocato_referente>
+    <Avvocato_in_mandato>Claudio Palmieri &amp; Chiara Cremona</Avvocato_in_mandato>
+    <Preventivo_inviato>True</Preventivo_inviato>
+  </tab_Pratica>
+  <tab_Anagrafica>
+    <Tipo_cliente>Impresa</Tipo_cliente>
+    <Anagrafica_imprese>
+      <Denominazione>theinnovaionlawyers.eu - Studio Legale Associato</Denominazione>
+      <Cod_fisc>18187271004</Cod_fisc>
+      <P_IVA>18187271004</P_IVA>
+      <Indirizzo_legale>Via Properzio, 5, 00193 - ROMA (RM)</Indirizzo_legale>
+      <Altro_indirizzo />
+      <PEC />
+      <Email>info@theinnovationlawyers.eu</Email>
+      <Num_telefoni>tel. +39 06 92957605; cell. +39 328 0649518, fax +39 06 92933212</Num_telefoni>
+      <Iscrizione_camerale />
+      <Posizione>studio_legale_associato_TiL</Posizione>
+      <Nome_rappresentante>Chiara</Nome_rappresentante>
+      <Cognome_rappresentante>Cremona</Cognome_rappresentante>
+      <CodFisc_rappresentante>CRMCHR75M52L319K</CodFisc_rappresentante>
+      <Note>altro rappresentante: Claudio Palmieri</Note>
+    </Anagrafica_imprese>
+    <Anagrafica_imprese>
+      <Denominazione>xx</Denominazione>
+      <Cod_fisc>xx</Cod_fisc>
+      <P_IVA>aa</P_IVA>
+      <Indirizzo_legale>aa</Indirizzo_legale>
+      <Altro_indirizzo>aa</Altro_indirizzo>
+      <PEC>aa</PEC>
+      <Email>aa</Email>
+      <Num_telefoni>aa</Num_telefoni>
+      <Iscrizione_camerale>aa</Iscrizione_camerale>
+      <Posizione>Attore</Posizione>
+      <Nome_rappresentante>aa</Nome_rappresentante>
+      <Cognome_rappresentante>aa</Cognome_rappresentante>
+      <CodFisc_rappresentante>aa</CodFisc_rappresentante>
+      <Note>aa</Note>
+    </Anagrafica_imprese>
+    <Anagrafica_persone>
+      <Nome>Claudio</Nome>
+      <Cognome>Palmieri</Cognome>
+      <Cod_fisc>PLMCLD71C24D708K</Cod_fisc>
+      <P_IVA>02579590593</P_IVA>
+      <CI />
+      <Data_nascita>24/03/1971</Data_nascita>
+      <Luogo_nascita>Formia (LT)</Luogo_nascita>
+      <Impresa>theinnovaionlawyers.eu</Impresa>
+      <Ruolo />
+      <Indirizzo_abitazione />
+      <Indirizzo_lavoro>Via Properzio 5, Roma</Indirizzo_lavoro>
+      <PEC>claudiopalmieri@ordineavvocatiroma.org</PEC>
+      <Email>claudio.palmieri@theinnovationlawyers.eu, avv.cpalmieri@gmail.com</Email>
+      <Num_telefoni>tel. +39 06 92957605; cell. +39 328 0649518, fax +39 06 92933212</Num_telefoni>
+      <Posizione>avvocato_TiL</Posizione>
+      <Note>sito-web: theinnovaionlawyers.eu; metodo di pagamento:</Note>
+    </Anagrafica_persone>
+    <Anagrafica_persone>
+      <Nome>Chiara</Nome>
+      <Cognome>Cremona</Cognome>
+      <Cod_fisc>CRMCHR75M52L319K</Cod_fisc>
+      <P_IVA />
+      <CI />
+      <Data_nascita>12/08/1975</Data_nascita>
+      <Luogo_nascita>Tradate(VA)</Luogo_nascita>
+      <Impresa>theinnovaionlawyers.eu</Impresa>
+      <Ruolo />
+      <Indirizzo_abitazione />
+      <Indirizzo_lavoro>Via Properzio 5, Roma</Indirizzo_lavoro>
+      <PEC>chiara.cremona@milano.pecavvocati.it</PEC>
+      <Email>chiara.cremona@theinnovationlawyers.eu, chiara.cremona@gmail.com</Email>
+      <Num_telefoni>tel. +39 06 92957605; cell. +39 328 0649518, fax +39 06 92933212</Num_telefoni>
+      <Posizione>avvocato_TiL</Posizione>
+      <Note>sito-web: theinnovaionlawyers.eu; metodo di pagamento:</Note>
+    </Anagrafica_persone>
+    <Anagrafica_persone>
+      <Nome>nn</Nome>
+      <Cognome>nprrrrrrrrr</Cognome>
+      <Cod_fisc>n</Cod_fisc>
+      <P_IVA>n</P_IVA>
+      <CI />
+      <Data_nascita>n</Data_nascita>
+      <Luogo_nascita>n</Luogo_nascita>
+      <Impresa>n</Impresa>
+      <Ruolo>n</Ruolo>
+      <Indirizzo_abitazione>n</Indirizzo_abitazione>
+      <Indirizzo_lavoro>n</Indirizzo_lavoro>
+      <PEC>n</PEC>
+      <Email>n</Email>
+      <Num_telefoni>n</Num_telefoni>
+      <Posizione>Giudice</Posizione>
+      <Note>n</Note>
+    </Anagrafica_persone>
+  </tab_Anagrafica>
+  <tab_preventivi_e_tariffe>
+    <Tariffe_Contenzioso>
+      <Riga>
+        <Tipo>Base</Tipo>
+        <Note>aaaaaaaa</Note>
+        <Totale>30</Totale>
+      </Riga>
+      <Riga>
+        <Tipo>A Percentuale</Tipo>
+        <Note>aaaaaaaaaaa</Note>
+        <Valore>5000,00</Valore>
+        <Percentuale>10</Percentuale>
+        <Totale>500,00</Totale>
+      </Riga>
+      <Riga>
+        <Tipo>A Percentuale</Tipo>
+        <Note>aaaaaaaaa</Note>
+        <Valore>5000,00</Valore>
+        <Percentuale>10</Percentuale>
+        <Totale>500,00</Totale>
+      </Riga>
+      <Riga>
+        <Tipo>A Percentuale</Tipo>
+        <Note>aaaaaaaaa</Note>
+        <Valore>6000,00</Valore>
+        <Percentuale>15</Percentuale>
+        <Totale>900,00</Totale>
+      </Riga>
+      <Riga>
+        <Tipo>Oraria</Tipo>
+        <Note>aaaaaaaaaa</Note>
+        <Tariffa_oraria>600</Tariffa_oraria>
+        <Tempo_stimato_min>165</Tempo_stimato_min>
+        <Totale>1.650,00</Totale>
+      </Riga>
+    </Tariffe_Contenzioso>
+    <Tariffe_Stragiudiziale>
+      <Riga>
+        <Tipo>Forfait</Tipo>
+        <Note>aaaaaaaaaaaaa</Note>
+        <Totale>30</Totale>
+      </Riga>
+      <Riga>
+        <Tipo>A Risultato</Tipo>
+        <Note>aaaaaaa</Note>
+        <Totale>300</Totale>
+      </Riga>
+      <Riga>
+        <Tipo>Abbonamento</Tipo>
+        <Note>aaaaaaaaa</Note>
+        <Totale>80000</Totale>
+      </Riga>
+    </Tariffe_Stragiudiziale>
+    <Totale_Contenzioso>3580.00</Totale_Contenzioso>
+    <Totale_Stragiudiziale>80330.00</Totale_Stragiudiziale>
+    <Totale_Generale>83910.00</Totale_Generale>
+  </tab_preventivi_e_tariffe>
+  <tab_Attività>
+    <Riga_Attivita>
+      <ID_attività />
+      <Descrizione_attività />
+      <Data_inizio />
+      <Data_scadenza />
+      <Scadenza_flag>No</Scadenza_flag>
+      <Durata_stimata_min>0</Durata_stimata_min>
+      <Durata_effettiva_min />
+      <Tariffa_oraria_eur_h>300.0</Tariffa_oraria_eur_h>
+      <Tariffa_stimata_eur>0.00</Tariffa_stimata_eur>
+      <Tariffa_effettiva_eur>0.00</Tariffa_effettiva_eur>
+      <Scadenza_prossima />
+      <Evasa />
+    </Riga_Attivita>
+  </tab_Attività>
+</Pratica>

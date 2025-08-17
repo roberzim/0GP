@@ -1,0 +1,93 @@
+{
+  "metadata": {
+    "data": "2025-08-11",
+    "ambito": "Giudizi innanzi al Tribunale Amministrativo Regionale",
+    "scaglione": "52000.01-260000.00",
+    "tipoTariffario": "tariffari_6fasi",
+    "ivaApplicata": true,
+    "cpaApplicata": true,
+    "ritenutaApplicata": "30%"
+  },
+  "fasi": [
+    {
+      "nome": "Studio",
+      "selezionata": true,
+      "valoreMedio": 3402,
+      "riduzionePercentuale": 0,
+      "aumentoPercentuale": 0,
+      "compensoParziale": 3402
+    },
+    {
+      "nome": "Introduzione",
+      "selezionata": true,
+      "valoreMedio": 2293,
+      "riduzionePercentuale": 0,
+      "aumentoPercentuale": 0,
+      "compensoParziale": 2293
+    },
+    {
+      "nome": "Istruttoria/Trattazione",
+      "selezionata": true,
+      "valoreMedio": 2268,
+      "riduzionePercentuale": 0,
+      "aumentoPercentuale": 0,
+      "compensoParziale": 2268
+    },
+    {
+      "nome": "Decisione",
+      "selezionata": true,
+      "valoreMedio": 5030,
+      "riduzionePercentuale": 0,
+      "aumentoPercentuale": 0,
+      "compensoParziale": 5030
+    },
+    {
+      "nome": "Cautelare collegiale",
+      "selezionata": true,
+      "valoreMedio": 2762,
+      "riduzionePercentuale": 0,
+      "aumentoPercentuale": 0,
+      "compensoParziale": 2762
+    },
+    {
+      "nome": "Cautelare monocratica",
+      "selezionata": true,
+      "valoreMedio": 1381,
+      "riduzionePercentuale": 0,
+      "aumentoPercentuale": 0,
+      "compensoParziale": 1381
+    }
+  ],
+  "compensoTabellare": 17136,
+  "prospettoFinale": [
+    {
+      "descrizione": "Compenso tabellare",
+      "importo": 17136
+    },
+    {
+      "descrizione": "aumento-valutazione (30%)",
+      "importo": 5140.8
+    },
+    {
+      "descrizione": "Spese generali (15%)",
+      "importo": 3341.52
+    },
+    {
+      "descrizione": "Cassa Avvocati (4%)",
+      "importo": 1024.7328
+    },
+    {
+      "descrizione": "IVA (22%)",
+      "importo": 5861.471616000001
+    },
+    {
+      "descrizione": "Ritenuta d'acconto (30%)",
+      "importo": -7685.495999999999
+    },
+    {
+      "descrizione": "TOTALE DOCUMENTO",
+      "importo": 24819.03
+    }
+  ],
+  "totaleDocumento": 24819.03
+}

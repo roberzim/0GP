@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "id_pratica": "12/2025",
+  "stato": "aperta",
+  "data_apertura": "2025-08-15T00:00:00",
+  "schema_version": 1,
+  "avvocato_referente": "Claudio Palmieri",
+  "cartella_cliente": "mio_15082025",
+  "nome_pratica": "mio_012025",
+  "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/mio_15082025/mio_012025",
+  "codice": "mio_012025"
+}

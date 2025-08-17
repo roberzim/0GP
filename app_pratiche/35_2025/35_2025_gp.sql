@@ -1,0 +1,22 @@
+-- Export pratica 35/2025
+-- Database: /home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/archivio/0gp.sqlite
+-- Generato: 2025-08-17T16:09:17
+-- Tabelle coinvolte: attivita, documenti, history, pratica_avvocati, pratica_tariffe, pratiche, scadenze
+BEGIN;
+-- attivita
+DELETE FROM attivita WHERE id_pratica='35/2025';
+-- documenti
+DELETE FROM documenti WHERE id_pratica='35/2025';
+-- history
+DELETE FROM history WHERE id_pratica='35/2025';
+-- pratica_avvocati
+DELETE FROM pratica_avvocati WHERE id_pratica='35/2025';
+-- pratica_tariffe
+DELETE FROM pratica_tariffe WHERE id_pratica='35/2025';
+-- pratiche
+DELETE FROM pratiche WHERE id_pratica='35/2025';
+INSERT INTO pratiche (id_pratica, created_at, updated_at, anno, numero, tipo_pratica, settore, materia, referente_email, referente_nome, preventivo, note, raw_json, titolo, stato) VALUES ('35/2025', '2025-08-17 14:07:37', '2025-08-17 14:09:17', NULL, NULL, '{"value":0,"label":"Contenzioso"}', NULL, NULL, NULL, NULL, 0, '', '{"id_pratica": "35/2025", "nome_pratica": "71_352025", "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/71_17082025/71_352025", "data_apertura": ["2025-08-17", "add-day", {"year": 2025, "month": 8, "day": 17}], "data_chiusura": ["2025-08-20", "add-day", {"year": 2025, "month": 8, "day": 20}], "valore_pratica": "60.000", "tipo_pratica": {"value": 0, "label": "Contenzioso"}, "settore_pratica": {"value": 10, "label": "Altro"}, "materia_pratica": {"value": 1, "label": "Penale"}, "avvocato_referente": null, "avvocato_in_mandato": [], "preventivo_inviato": true, "note": "", "tipo_tariffe": [{"value": 3, "label": "A Risultato"}], "_tariffe_widgets": [[null, "A Risultato"]], "settore_element": "Altro", "materia_element": "Penale", "avv_referente_element": null, "avv_mandato_element": [], "tariffe_contenzioso": {"Base": [{"note": "", "tot": ""}], "Forfait": [{"note": "", "tot": ""}], "A Percentuale": [{"note": "", "tot": "", "valore": "", "percentuale": ""}], "A Risultato": [{"note": "", "tot": ""}], "Oraria": [{"note": "", "tot": "", "tariffa_oraria": "", "tempo_stimato": ""}], "Abbonamento": [{"note": "", "tot": ""}]}, "totale_contenzioso": 0.0, "totale_stragiudiziale": 18000.0, "totale_generale": 18000.0, "tariffe_stragiudiziale": {"Base": [{"note": "fsgfsdhgf", "tot": "6000,00"}, {"note": "fsgfsdhgf1", "tot": "6000,00"}, {"note": "fsgfsdhgf2", "tot": "6000,00"}, {"note": "", "tot": ""}], "Forfait": [{"note": "", "tot": ""}], "A Percentuale": [{"note": "", "tot": "", "valore": "", "percentuale": ""}], "A Risultato": [{"note": "", "tot": ""}], "Oraria": [{"note": "", "tot": "", "tariffa_oraria": "", "tempo_stimato": ""}], "Abbonamento": [{"note": "", "tot": ""}]}, "scadenze": [{"descrizione": "", "data_inizio": "", "data_scadenza": "", "minuti_prima_allert": 30, "durata_stimata": 0, "durata_effettiva": null, "scadenza": false, "tariffa_oraria": 300.0, "tariffa_stimata": "0.00", "tariffa_effettiva": "0.00", "id_evento": ""}], "scadenze_totale_durata_stimata": 0, "scadenze_totale_tariffa_stimata": 0.0, "scadenze_totale_tariffa_effettiva": 0.0}', NULL, NULL);
+-- scadenze
+DELETE FROM scadenze WHERE id_pratica='35/2025';
+INSERT INTO scadenze (id, id_pratica, data_scadenza, descrizione, note, completata, uid, pos) VALUES (46, '35/2025', '', '', NULL, NULL, 'ccd9b09138b844deafeae27ce1bcf69d', 0);
+COMMIT;

@@ -1,41 +1,17 @@
-# Python
 __pycache__/
-*.py[cod]
-*.pyo
+*.pyc
+.env
 .venv/
 venv/
-.env
-.env.*
-
-# Editor/OS
-.vscode/
-.idea/
 .DS_Store
-Thumbs.db
 
-# Build / packaging
-dist/
-build/
-*.egg-info/
+# Dati locali / output
+archivio/0gp.sqlite
+archivio/indice.sqlite
+archivio/backups_json/
+archivio/**/*.json
+archivio/**/*.sqlite
+lib_json/*.cache
 
-# Dati runtime del progetto 0GP: NON versionare
-archivio/
-app_pratiche/
-lib_json_export/
-*.sqlite
-*.db
-*.bak
-*.zip
-*.jsonl
-
-# Tieni i lookup statici (se presenti)
-!lib_json/
-# runtime / locali
-archivio/
-app_pratiche/
-*.sqlite
-*.db
-__pycache__/
-*.zip
-# backup locali
-repo_sqlite.user_original.py
+# NiceGUI temp
+*.log

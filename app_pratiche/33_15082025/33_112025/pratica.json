@@ -1,0 +1,432 @@
+{
+  "id_pratica": "11/2025",
+  "nome_pratica": "33_112025",
+  "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/33_15082025/33_112025",
+  "data_apertura": null,
+  "data_chiusura": null,
+  "valore_pratica": "",
+  "tipo_pratica": null,
+  "settore_pratica": null,
+  "materia_pratica": null,
+  "avvocato_referente": null,
+  "avvocato_in_mandato": [],
+  "preventivo_inviato": false,
+  "note": "",
+  "tipo_tariffe": [],
+  "_tariffe_widgets": [],
+  "settore_element": null,
+  "materia_element": null,
+  "avv_referente_element": null,
+  "avv_mandato_element": [],
+  "refresh_settori": null,
+  "refresh_materie": null,
+  "refresh_avvocati": null,
+  "Pratica": {
+    "ID_pratica": "1/2025",
+    "tab_Pratica": {
+      "Nome_pratica": "aa_012025",
+      "Data_apertura": "2025-08-10",
+      "Data_chiusura": "2025-08-27",
+      "Valore_pratica": "00000000000",
+      "Tipo_pratica": "Contenzioso",
+      "Settore_pratica": {
+        "value": 0,
+        "label": "Tecnologia"
+      },
+      "Materia_pratica": {
+        "value": 0,
+        "label": "Civile"
+      },
+      "Tipo_tariffa": [
+        "Base",
+        "Tabelle ministeriali",
+        "Abbonamento"
+      ],
+      "Avvocato_referente": "Claudio Palmieri",
+      "Avvocato_in_mandato": "Claudio Palmieri & Chiara Cremona",
+      "Preventivo_inviato": true
+    },
+    "tab_Anagrafica": {
+      "Tipo_cliente": "Impresa",
+      "Anagrafica_imprese": [
+        {
+          "Denominazione": "theinnovaionlawyers.eu - Studio Legale Associato",
+          "Cod_fisc": "18187271004",
+          "P_IVA": "18187271004",
+          "Indirizzo_legale": "Via Properzio, 5, 00193 - ROMA (RM)",
+          "Altro_indirizzo": null,
+          "PEC": null,
+          "Email": "info@theinnovationlawyers.eu",
+          "Num_telefoni": "tel. +39 06 92957605; cell. +39 328 0649518, fax +39 06 92933212",
+          "Iscrizione_camerale": null,
+          "Posizione": "studio_legale_associato_TiL",
+          "Nome_rappresentante": "Chiara",
+          "Cognome_rappresentante": "Cremona",
+          "CodFisc_rappresentante": "CRMCHR75M52L319K",
+          "Note": "altro rappresentante: Claudio Palmieri"
+        },
+        {
+          "Denominazione": "xx",
+          "Cod_fisc": "xx",
+          "P_IVA": "aa",
+          "Indirizzo_legale": "aa",
+          "Altro_indirizzo": "aa",
+          "PEC": "aa",
+          "Email": "aa",
+          "Num_telefoni": "aa",
+          "Iscrizione_camerale": "aa",
+          "Posizione": "Attore",
+          "Nome_rappresentante": "aa",
+          "Cognome_rappresentante": "aa",
+          "CodFisc_rappresentante": "aa",
+          "Note": "aa"
+        }
+      ],
+      "Anagrafica_persone": [
+        {
+          "Nome": "Claudio",
+          "Cognome": "Palmieri",
+          "Cod_fisc": "PLMCLD71C24D708K",
+          "P_IVA": "02579590593",
+          "CI": null,
+          "Data_nascita": "24/03/1971",
+          "Luogo_nascita": "Formia (LT)",
+          "Impresa": "theinnovaionlawyers.eu",
+          "Ruolo": null,
+          "Indirizzo_abitazione": null,
+          "Indirizzo_lavoro": "Via Properzio 5, Roma",
+          "PEC": "claudiopalmieri@ordineavvocatiroma.org",
+          "Email": "claudio.palmieri@theinnovationlawyers.eu, avv.cpalmieri@gmail.com",
+          "Num_telefoni": "tel. +39 06 92957605; cell. +39 328 0649518, fax +39 06 92933212",
+          "Posizione": "avvocato_TiL",
+          "Note": "sito-web: theinnovaionlawyers.eu; metodo di pagamento:"
+        },
+        {
+          "Nome": "Chiara",
+          "Cognome": "Cremona",
+          "Cod_fisc": "CRMCHR75M52L319K",
+          "P_IVA": null,
+          "CI": null,
+          "Data_nascita": "12/08/1975",
+          "Luogo_nascita": "Tradate(VA)",
+          "Impresa": "theinnovaionlawyers.eu",
+          "Ruolo": null,
+          "Indirizzo_abitazione": null,
+          "Indirizzo_lavoro": "Via Properzio 5, Roma",
+          "PEC": "chiara.cremona@milano.pecavvocati.it",
+          "Email": "chiara.cremona@theinnovationlawyers.eu, chiara.cremona@gmail.com",
+          "Num_telefoni": "tel. +39 06 92957605; cell. +39 328 0649518, fax +39 06 92933212",
+          "Posizione": "avvocato_TiL",
+          "Note": "sito-web: theinnovaionlawyers.eu; metodo di pagamento:"
+        },
+        {
+          "Nome": "nn",
+          "Cognome": "nprrrrrrrrr",
+          "Cod_fisc": "n",
+          "P_IVA": "n",
+          "CI": null,
+          "Data_nascita": "n",
+          "Luogo_nascita": "n",
+          "Impresa": "n",
+          "Ruolo": "n",
+          "Indirizzo_abitazione": "n",
+          "Indirizzo_lavoro": "n",
+          "PEC": "n",
+          "Email": "n",
+          "Num_telefoni": "n",
+          "Posizione": "Giudice",
+          "Note": "n"
+        }
+      ]
+    },
+    "tab_preventivi_e_tariffe": {
+      "Tariffe_Contenzioso": {
+        "Riga": [
+          {
+            "Tipo": "Base",
+            "Note": "aaaaaaaa",
+            "Totale": 30
+          },
+          {
+            "Tipo": "A Percentuale",
+            "Note": "aaaaaaaaaaa",
+            "Valore": 5000.0,
+            "Percentuale": 10,
+            "Totale": 500.0
+          },
+          {
+            "Tipo": "A Percentuale",
+            "Note": "aaaaaaaaa",
+            "Valore": 5000.0,
+            "Percentuale": 10,
+            "Totale": 500.0
+          },
+          {
+            "Tipo": "A Percentuale",
+            "Note": "aaaaaaaaa",
+            "Valore": 6000.0,
+            "Percentuale": 15,
+            "Totale": 900.0
+          },
+          {
+            "Tipo": "Oraria",
+            "Note": "aaaaaaaaaa",
+            "Tariffa_oraria": 600,
+            "Tempo_stimato_min": 165,
+            "Totale": 1650.0
+          }
+        ]
+      },
+      "TabelleMinisteriali_Contenzioso": {
+        "TabellaMinisteriale": [
+          {
+            "Numero": 1,
+            "Metadata": {
+              "Data": "2025-08-11",
+              "Ambito": "Giudizi innanzi al Tribunale Amministrativo Regionale",
+              "Scaglione": "52000.01-260000.00"
+            },
+            "ProspettoFinale": {
+              "Voce": [
+                {
+                  "Descrizione": "Compenso tabellare",
+                  "Importo": 17136
+                },
+                {
+                  "Descrizione": "aumento-valutazione (30%)",
+                  "Importo": 5140.8
+                },
+                {
+                  "Descrizione": "Spese generali (15%)",
+                  "Importo": 3341.52
+                },
+                {
+                  "Descrizione": "Cassa Avvocati (4%)",
+                  "Importo": 1024.73
+                },
+                {
+                  "Descrizione": "IVA (22%)",
+                  "Importo": 5861.47
+                },
+                {
+                  "Descrizione": "Ritenuta d'acconto (30%)",
+                  "Importo": -7685.5
+                },
+                {
+                  "Descrizione": "TOTALE DOCUMENTO",
+                  "Importo": 24819.03
+                }
+              ]
+            },
+            "TotaleDocumento": 24819.03
+          }
+        ]
+      },
+      "Tariffe_Stragiudiziale": {
+        "Riga": [
+          {
+            "Tipo": "Forfait",
+            "Note": "aaaaaaaaaaaaa",
+            "Totale": 30
+          },
+          {
+            "Tipo": "A Risultato",
+            "Note": "aaaaaaa",
+            "Totale": 300
+          },
+          {
+            "Tipo": "Abbonamento",
+            "Note": "aaaaaaaaa",
+            "Totale": 80000
+          }
+        ]
+      },
+      "TabelleMinisteriali_Stragiudiziale": {
+        "TabellaMinisteriale": [
+          {
+            "Numero": 1,
+            "Metadata": {
+              "Data": "2025-08-11",
+              "Ambito": "Giudizi innanzi al Tribunale Amministrativo Regionale",
+              "Scaglione": "20000000.01-22000000.00"
+            },
+            "ProspettoFinale": {
+              "Voce": [
+                {
+                  "Descrizione": "Compenso tabellare",
+                  "Importo": 111122.82
+                },
+                {
+                  "Descrizione": "Spese di trasferta",
+                  "Importo": 10000
+                },
+                {
+                  "Descrizione": "Spese generali (15%)",
+                  "Importo": 18168.42
+                },
+                {
+                  "Descrizione": "Cassa Avvocati (4%)",
+                  "Importo": 5571.65
+                },
+                {
+                  "Descrizione": "IVA (22%)",
+                  "Importo": 31869.84
+                },
+                {
+                  "Descrizione": "Ritenuta d'acconto (30%)",
+                  "Importo": -41787.37
+                },
+                {
+                  "Descrizione": "TOTALE DOCUMENTO",
+                  "Importo": 134945.36
+                }
+              ]
+            },
+            "TotaleDocumento": 134945.36
+          }
+        ]
+      },
+      "Totale_Contenzioso": 28399.03,
+      "Totale_Stragiudiziale": 215275.36,
+      "Totale_Generale": 243674.39
+    },
+    "tab_Attività": {
+      "Riga_Attivita": [
+        {
+          "ID_attività": "q8ati6053lshhkrqidaukt380c",
+          "Descrizione_attività": "aaaaaaa",
+          "Data_inizio": "20/08/2025 09.30.00",
+          "Data_scadenza": "20/08/2025 10.30.00",
+          "Scadenza_flag": "Si",
+          "Durata_stimata_min": 60,
+          "Durata_effettiva_min": 30.0,
+          "Tariffa_oraria_eur_h": 300.0,
+          "Tariffa_stimata_eur": 300.0,
+          "Tariffa_effettiva_eur": 150.0,
+          "Scadenza_prossima": "20/08/2025 10.30.00",
+          "Evasa": null
+        },
+        {
+          "ID_attività": null,
+          "Descrizione_attività": null,
+          "Data_inizio": null,
+          "Data_scadenza": null,
+          "Scadenza_flag": "No",
+          "Durata_stimata_min": 0,
+          "Durata_effettiva_min": null,
+          "Tariffa_oraria_eur_h": 300.0,
+          "Tariffa_stimata_eur": 0.0,
+          "Tariffa_effettiva_eur": 0.0,
+          "Scadenza_prossima": null,
+          "Evasa": null
+        }
+      ]
+    }
+  },
+  "tariffe_contenzioso": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "totale_contenzioso": 0.0,
+  "totale_stragiudiziale": 0.0,
+  "totale_generale": 0.0,
+  "tariffe_stragiudiziale": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "scadenze": [
+    {
+      "descrizione": "",
+      "data_inizio": "",
+      "data_scadenza": "",
+      "minuti_prima_allert": 30,
+      "durata_stimata": 0,
+      "durata_effettiva": null,
+      "scadenza": false,
+      "tariffa_oraria": 300.0,
+      "tariffa_stimata": "0.00",
+      "tariffa_effettiva": "0.00",
+      "id_evento": ""
+    }
+  ],
+  "scadenze_totale_durata_stimata": 0,
+  "scadenze_totale_tariffa_stimata": 0.0,
+  "scadenze_totale_tariffa_effettiva": 0.0,
+  "updated_at": "2025-08-15T12:49:12"
+}

@@ -1,0 +1,3059 @@
+# apertura_pratica_popup.py — JSON-only (storico) + SQLite listing (nuovo)
+from __future__ import annotations
+
+import os
+import re
+import sqlite3
+from datetime import datetime, date
+from typing import Iterable, Tuple, Optional, Dict, Any, List
+from pathlib import Path
+
+from nicegui import ui
+
+# --- original imports (JSON flow) ---
+from log_gestione_pratica import log_apertura
+from repo import write_pratica
+from utils_lookup import load_id_pratiche, load_avvocati
+from id_registry import load_next_id, persist_after_save
+from reindex import reindex
+from dual_save import dual_save
+
+# --- new (SQLite support, solo apertura/elenco) ---
+try:
+    from db_core import get_connection as _get_connection
+    from repo_sqlite import load_pratica as _load_pratica_db
+except Exception:  # se non presenti, il tab DB verrà disabilitato
+    _get_connection = None
+    _load_pratica_db = None
+
+# --- importatore SQL (per import pratica via .sql) ---
+try:
+    # rende disponibile import_sql se presente sotto tools
+    from tools import import_sql as _import_sql
+except Exception:
+    # se il modulo non esiste o fallisce l'import, la funzione sarà None
+    _import_sql = None
+
+# Formato per la porzione data nel nome cartella cliente (es. _14082025)
+DATA_FMT_CARTELLA = '%d%m%Y'
+
+# DB path (se esiste il layer, altrimenti il tab rimane disattivato)
+DB_PATH = os.environ.get('GP_DB_PATH', os.path.join('archivio', '0gp.sqlite'))
+
+
+# ---------- Utility JSON-only ----------
+
+def _load_avvocati_json() -> list[str]:
+    try:
+        lst = load_avvocati()
+        return sorted({x for x in lst if isinstance(x, str) and x.strip()})
+    except Exception:
+        return []
+
+
+def _make_id_suffix(numero: int, anno: int) -> str:
+    s = f'{numero}{anno}'
+    return ('0' + s) if len(s) == 5 else s
+
+
+def _read_ids_for_table() -> list[dict]:
+    rows = []
+    try:
+        for el in load_id_pratiche():
+            rows.append({
+                'Numero': el.get('num_pratica', ''),
+                'Anno': el.get('anno_pratica', ''),
+                'Nome pratica': el.get('nome_pratica', ''),
+                'Cartella': el.get('percorso_pratica', '') or el.get('link_percorso_pratica', ''),
+                'Link': el.get('link_cartella', ''),
+            })
+    except Exception:
+        pass
+    return rows
+
+
+def _open_path(path: str) -> None:
+    try:
+        if os.name == 'nt':
+            os.startfile(path)  # type: ignore
+        elif os.name == 'posix':
+            if os.system(f'xdg-open "{path}" >/dev/null 2>&1') != 0:
+                os.system(f'open "{path}" >/dev/null 2>&1')
+        else:
+            raise RuntimeError('Sistema non supportato')
+    except Exception as e:
+        ui.notify(f'Impossibile aprire: {e}', type='warning')
+
+
+def _safe_int(x) -> int:
+    try:
+        return int(x)
+    except Exception:
+        return -10**9
+
+
+# ---------- Supporto ID & Collisioni (come originale) ----------
+
+def _id_exists(numero: int, anno: int) -> Tuple[bool, Optional[str]]:
+    try:
+        for el in load_id_pratiche():
+            try:
+                n = int(str(el.get('num_pratica') or '0').strip())
+                a = int(str(el.get('anno_pratica') or str(date.today().year)).strip())
+            except Exception:
+                continue
+            if n == numero and a == anno:
+                return True, str(el.get('nome_pratica') or '')
+    except Exception:
+        pass
+    return False, None
+
+
+def _next_id_for_year(anno: int) -> int:
+    max_num = 0
+    try:
+        for el in load_id_pratiche():
+            try:
+                a = int(str(el.get('anno_pratica') or '0').strip())
+                if a != anno:
+                    continue
+                n = int(str(el.get('num_pratica') or '0').strip())
+                if n > max_num:
+                    max_num = n
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return max_num + 1 if max_num >= 0 else 1
+
+
+# ---------- Mapping DB -> stato UI (minimo, non invasivo) ----------
+
+def _apply_db_pratica_to_state(db_pratica: Dict[str, Any], pratica_data: Dict[str, Any], anagrafica_data: Dict[str, Any]) -> None:
+    """Mappa i campi principali dal record DB in pratica_data/anagrafica_data, senza cambiare struttura UI."""
+    if not db_pratica:
+        return
+    # ID
+    pid = db_pratica.get('id_pratica')
+    if pid and isinstance(pid, str) and '_' in pid:
+        # in DB tipicamente "1_2025"; in UI si usa "1/2025"
+        try:
+            n, a = pid.split('_', 1)
+            pratica_data['id_pratica'] = f'{n}/{a}'
+        except Exception:
+            pratica_data['id_pratica'] = pid
+    elif pid:
+        pratica_data['id_pratica'] = pid
+
+    # Campi principali (adatta ai nomi usati in UI originale)
+    pratica_data['tipo_pratica'] = db_pratica.get('tipo_pratica')
+    pratica_data['settore_pratica'] = db_pratica.get('settore')
+    pratica_data['materia_pratica'] = db_pratica.get('materia')
+    pratica_data['note'] = db_pratica.get('note')
+
+    # Referente (UI usa un campo singolo testuale, qui ricaviamo dal primo avvocato con ruolo 'referente' o da 'referente_nome')
+    ref_nome = db_pratica.get('referente_nome')
+    ref_email = db_pratica.get('referente_email')
+    avv = db_pratica.get('avvocati') or []
+    if not ref_nome and avv:
+        # prova a trovare il referente
+        for a in avv:
+            if (a.get('ruolo') or '').lower() == 'referente' and a.get('nome'):
+                ref_nome = a.get('nome')
+                break
+        if not ref_nome and avv[0].get('nome'):
+            ref_nome = avv[0]['nome']
+    pratica_data['avvocato_referente'] = ref_nome or pratica_data.get('avvocato_referente')
+
+    # Avvocati in mandato (UI tiene lista testuale; qui mettiamo una lista di nomi/email)
+    in_mandato: List[str] = pratica_data.get('avvocato_in_mandato') or []
+    for a in avv:
+        nm = a.get('nome') or a.get('email')
+        if nm and nm not in in_mandato:
+            in_mandato.append(nm)
+    pratica_data['avvocato_in_mandato'] = in_mandato
+
+    # Nessuna modifica aggressiva su percorsi/cartelle: la UI originale gestisce percorso_pratica e nome_pratica.
+
+    # Anagrafica: il DB schema standard non la dettaglia; lasciamo invariata.
+    # Volendo, si potrebbe inferire da documenti o note, ma evitiamo per non “sporcare” lo stato.
+
+
+# ---------- Dialog secondari (esteso: + tab DB) ----------
+
+def _popup_elenco_pratiche() -> None:
+    dlg = ui.dialog()
+    with dlg, ui.card().classes('w-[900px] max-w-[95vw]'):
+        ui.label('Elenco pratiche').classes('text-xl font-semibold')
+
+        with ui.tabs().classes('w-full') as tabs:
+            t_json = ui.tab('Archivio JSON')
+            t_db = ui.tab('DB SQLite')
+
+        with ui.tab_panels(tabs, value=t_json).classes('w-full'):
+            # ---- Pannello JSON (originale) ----
+            with ui.tab_panel(t_json):
+                table_container = ui.column().classes('w-full')
+                links_container = ui.column().classes('w-full mt-2')
+
+                def render_json():
+                    table_container.clear()
+                    links_container.clear()
+                    rows = _read_ids_for_table()
+                    if not rows:
+                        with table_container:
+                            ui.label('Nessun dato trovato in lib_json/id_pratiche.json').classes('text-gray-500')
+                        return
+                    rows.sort(key=lambda r: (_safe_int(r.get('Anno')), _safe_int(r.get('Numero'))), reverse=True)
+                    cols = [{'name': k, 'label': k, 'field': k, 'align': 'left'} for k in rows[0].keys()]
+                    with table_container:
+                        ui.table(columns=cols, rows=rows).classes('w-full')
+                    with links_container:
+                        ui.separator()
+                        ui.label('Apri cartella').classes('text-sm text-gray-600')
+                        for r in rows:
+                            cartella = r.get('Cartella') or ''
+                            if cartella:
+                                ui.button(
+                                    f"{r.get('Numero','')}/{r.get('Anno','')} — {r.get('Nome pratica','')}",
+                                    on_click=lambda p=cartella: _open_path(p)
+                                ).props('flat color=primary')
+
+                with ui.row().classes('justify-end w-full mt-3 gap-2'):
+                    ui.button('Aggiorna', on_click=render_json).props('icon=refresh')
+                render_json()
+
+            # ---- Pannello DB (nuovo) ----
+            with ui.tab_panel(t_db):
+                if _get_connection is None or _load_pratica_db is None or not os.path.exists(DB_PATH):
+                    ui.label('Layer SQLite non disponibile o DB assente.').classes('text-red-600')
+                else:
+                    with ui.row().classes('items-center gap-2'):
+                        filtro = ui.input('Filtro (ID, referente, tipo)').props('clearable').classes('w-[360px]')
+                        limit = ui.number('Limite', value=200, min=1, max=2000, format='%d').classes('w-[120px]')
+                        btn_reload = ui.button('Aggiorna').props('icon=refresh')
+
+                    tbl_container = ui.column().classes('w-full mt-2')
+
+                    def render_db():
+                        tbl_container.clear()
+                        q = (filtro.value or '').strip()
+                        lim = int(limit.value or 200)
+                        sql = ("SELECT id_pratica, anno, numero, tipo_pratica, referente_nome, updated_at "
+                               "FROM pratiche ")
+                        params: tuple = ()
+                        if q:
+                            sql += ("WHERE id_pratica LIKE ? OR COALESCE(referente_nome,'') LIKE ? OR "
+                                    "COALESCE(tipo_pratica,'') LIKE ? ")
+                            like = f"%{q}%"
+                            params = (like, like, like)
+                        sql += "ORDER BY updated_at DESC, id_pratica DESC LIMIT ?"
+                        params += (lim,)
+
+                        rows: List[sqlite3.Row] = []
+                        try:
+                            with _get_connection(DB_PATH) as con:
+                                con.row_factory = sqlite3.Row
+                                rows = list(con.execute(sql, params))
+                        except Exception as e:
+                            with tbl_container:
+                                ui.label(f'Errore DB: {e}').classes('text-red-600')
+                            return
+
+                        with tbl_container:
+                            with ui.row().classes('text-xs opacity-70 w-full justify-between'):
+                                ui.label('ID pratica').classes('w-[160px]')
+                                ui.label('Tipo').classes('w-[180px]')
+                                ui.label('Referente').classes('w-[220px]')
+                                ui.label('Ultimo aggiornamento').classes('w-[180px]')
+                                ui.label('').classes('w-[80px]')
+                            ui.separator()
+                            for r in rows:
+                                pid = r['id_pratica']
+                                with ui.row().classes('w-full items-center justify-between'):
+                                    ui.label(pid).classes('w-[160px]')
+                                    ui.label(r['tipo_pratica'] or '-').classes('w-[180px]')
+                                    ui.label(r['referente_nome'] or '-').classes('w-[220px]')
+                                    ui.label(r['updated_at'] or '').classes('w-[180px]')
+
+                                    def _open(pid=pid):
+                                        try:
+                                            rec = _load_pratica_db(pid)
+                                            if not rec:
+                                                ui.notify(f'Pratica {pid} non trovata nel DB', type='warning'); return
+                                            # Mappa DB -> stato UI (non invasivo)
+                                            _apply_db_pratica_to_state(rec, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+                                            # Aggiorna UI principale e chiudi popup
+                                            try:
+                                                _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+                                            except Exception:
+                                                pass
+                                            ui.notify(f'Pratica {pid} caricata dal DB', type='positive')
+                                            dlg.close()
+                                            ui.timer(0.05, lambda: ui.navigate.reload(), once=True)
+                                        except Exception as e:
+                                            ui.notify(f'Errore apertura {pid}: {e}', type='negative')
+
+                                    ui.button('Apri', on_click=_open).classes('w-[80px]').props('flat color=primary')
+
+                    btn_reload.on('click', render_db)
+                    filtro.on('keydown.enter', render_db)
+                    render_db()
+
+    dlg.open()
+
+
+def _file_browser_dialog(on_pick, start_dir: str | None = None) -> None:
+    base = start_dir or os.path.expanduser('~')
+    state = {'path': os.path.abspath(base)}
+
+    dlg = ui.dialog().props('persistent')
+    with dlg, ui.card().classes('w-[1000px] h-[70vh] max-w-[95vw]').style('resize: both; overflow: auto;'):
+        ui.label('Seleziona cartella di destinazione').classes('text-xl font-semibold')
+        with ui.row().classes('items-center justify-between w-full'):
+            path_label = ui.input('Percorso corrente').props('readonly').classes('w-full mr-2')
+            path_label.value = state['path']
+            ui.button(
+                'Seleziona questa cartella',
+                on_click=lambda: (on_pick(state['path']), dlg.close())
+            ).props('icon=check color=primary')
+
+        ui.separator()
+        lst_container = ui.column().classes('w-full h-full overflow-auto')
+
+        def open_dir(path: str):
+            try:
+                path = os.path.abspath(path)
+                if not os.path.isdir(path):
+                    ui.notify('Percorso non valido', type='negative')
+                    return
+                state['path'] = path
+                path_label.value = state['path']
+                render_list()
+            except Exception as e:
+                ui.notify(f'Errore apertura cartella: {e}', type='negative')
+
+        def render_list():
+            lst_container.clear()
+            with lst_container:
+                with ui.row().classes('w-full justify-between items-center mb-2'):
+                    ui.button('⬆️ Su', on_click=lambda: open_dir(os.path.dirname(state['path']))).props('flat')
+                    ui.label(f'Contenuto di: {state["path"]}').classes('text-sm text-gray-600')
+                try:
+                    entries = sorted(os.listdir(state['path']))
+                except Exception as e:
+                    ui.notify(f'Errore lettura cartella: {e}', type='negative')
+                    return
+                for name in entries:
+                    p = os.path.join(state['path'], name)
+                    if os.path.isdir(p):
+                        with ui.row().classes('w-full items-center justify-between hover:bg-gray-50 rounded px-2 py-1'):
+                            ui.icon('folder').classes('mr-1')
+                            ui.button(name, on_click=lambda p=p: open_dir(p)).props('flat')
+                if not entries:
+                    ui.label('Nessuna sottocartella').classes('text-gray-500')
+
+        render_list()
+    dlg.open()
+
+
+# ---------- Helpers per MODIFICA (applica JSON allo stato) ----------
+
+def _apply_record_to_state(record: Dict[str, Any], pratica_data: Dict[str, Any], anagrafica_data: Dict[str, Any]) -> None:
+    if not isinstance(record, dict):
+        return
+    mapping = [
+        'id_pratica', 'percorso_pratica', 'data_apertura', 'data_chiusura',
+        'valore_pratica', 'tipo_pratica', 'settore_pratica', 'materia_pratica',
+        'note', 'nome_pratica',
+    ]
+    for k in mapping:
+        if k in record:
+            pratica_data[k] = record.get(k)
+    pratica_data['avvocato_referente'] = record.get('avvocato_referente', pratica_data.get('avvocato_referente'))
+    pratica_data['avvocato_in_mandato'] = record.get('avvocato_in_mandato', pratica_data.get('avvocato_in_mandato', []))
+    pratica_data['preventivo_inviato'] = bool(record.get('preventivo_inviato', pratica_data.get('preventivo_inviato', False)))
+    for key in ('tariffe_contenzioso', 'tariffe_stragiudiziale', 'preventivi', 'preventivi_stragiudiziale', 'scadenze'):
+        if key in record:
+            pratica_data[key] = record.get(key)
+    if 'tipo_tariffe' in record and isinstance(record['tipo_tariffe'], list):
+        pratica_data['tipo_tariffe'] = [str(x) for x in record['tipo_tariffe'] if str(x).strip()]
+    ana = record.get('anagrafica') or {}
+    if isinstance(ana, dict):
+        fis = ana.get('persone_fisiche') or []
+        giu = ana.get('persone_giuridiche') or []
+        if isinstance(fis, list):
+            anagrafica_data['fisiche'] = fis
+        if isinstance(giu, list):
+            anagrafica_data['giuridiche'] = giu
+
+
+# ---------- Stato condiviso del popup (serve al tab DB per chiudere/settare UI) ----------
+_popup_state: Dict[str, Any] = {
+    'pratica_data': None,
+    'anagrafica_data': None,
+    'on_set_user_label': lambda *a, **k: None,
+    'user': '',
+}
+
+
+# ---------- Dialog principale (firma originale, invariata) ----------
+
+def mostra_popup_apertura(pratica_data: dict, id_predefinito: str, on_set_user_label, anagrafica_data: dict) -> None:
+    # rendi disponibili al tab DB i riferimenti allo stato UI
+    _popup_state['pratica_data'] = pratica_data
+    _popup_state['anagrafica_data'] = anagrafica_data
+    _popup_state['on_set_user_label'] = on_set_user_label
+
+    # 0) usa il prossimo ID reale come default
+    try:
+        num_default, anno_default = load_next_id()
+    except Exception:
+        oggi = date.today()
+        num_default, anno_default = (1, oggi.year)
+
+    id_suffix = _make_id_suffix(num_default, anno_default)
+    oggi_str = datetime.now().strftime(DATA_FMT_CARTELLA)
+
+    dialog = ui.dialog().props('persistent maximized')
+    with dialog, ui.card().classes('w-[95vw] h-[92vh] max-w-[98vw]').style('resize: both; overflow: auto;'):
+        ui.label('Apertura / Modifica pratica').classes('text-3xl font-bold mb-2')
+
+        # --- due colonne: [apertura] | [modifica esistente] ---
+        with ui.row().classes('w-full gap-4 no-wrap items-start overflow-auto'):
+            # =====================
+            # COLONNA A: APERTURA
+            # =====================
+            with ui.column().classes('flex-1 min-w-[460px]'):
+                ui.label('Nuova pratica').classes('text-lg font-semibold')
+                with ui.row().classes('w-full gap-4 items-end'):
+                    ui.label('ID_pratica').classes('font-medium')
+                    in_num = ui.number('Numero', value=num_default, min=1, format='%d').classes('w-40').props('readonly')
+                    in_anno = ui.number('Anno', value=anno_default, min=2000, format='%d').classes('w-48').props('readonly')
+
+                ui.separator()
+
+                with ui.grid(columns=2).classes('w-full gap-4'):
+                    avvocati = _load_avvocati_json()
+                    in_user = (
+                        ui.select(avvocati, label='Chi entra in gestione pratica *').classes('w-full')
+                        if avvocati else ui.input(label='Chi entra in gestione pratica *').classes('w-full')
+                    )
+                    in_cliente = ui.input(label='Nome cartella cliente *', value=f'_{oggi_str}').classes('w-full')
+                    in_pratica = ui.input(label='Nome pratica (sarà la cartella pratica) *', value=f'_{id_suffix}').classes('w-full')
+
+                    with ui.row().classes('items-end w-full gap-2'):
+                        in_percorso = ui.input(label='Percorso base dove creare le cartelle *').props('readonly').classes('w-full')
+                        ui.button('Sfoglia…', on_click=lambda: _file_browser_dialog(
+                            lambda p: setattr(in_percorso, 'value', p), start_dir=os.getcwd()
+                        )).props('icon=folder_open color=primary')
+
+                pattern_cartella = re.compile(r'.*_\d{8}$')
+                pattern_cartella_p = re.compile(r'.*_\d{6}$')
+
+                def _append_suffix_if_missing(inp, pattern: re.Pattern, suffix: str):
+                    v = (inp.value or '').strip()
+                    if not v or pattern.match(v):
+                        return
+                    base = v.rsplit('_', 1)[0] if '_' in v else v
+                    inp.value = f'{base}_{suffix}'
+                    try: inp.update()
+                    except Exception: pass
+
+                def _validate_required() -> bool:
+                    fields: Iterable[tuple[str, object]] = [
+                        ('Nome utente', (in_user.value or '').strip() if hasattr(in_user, 'value') else ''),
+                        ('Nome cartella cliente', (in_cliente.value or '').strip()),
+                        ('Nome pratica', (in_pratica.value or '').strip()),
+                        ('Percorso base', (in_percorso.value or '').strip()),
+                    ]
+                    missing = [k for k, v in fields if (isinstance(v, str) and v.strip() == '') or v in (None, '')]
+                    if missing:
+                        ui.notify('Compila tutti i campi: ' + ', '.join(missing), type='warning'); return False
+                    if not pattern_cartella.match((in_cliente.value or '').strip()):
+                        ui.notify('Il nome cartella cliente deve terminare con _######## (es. _14082025)', type='warning'); return False
+                    if not pattern_cartella_p.match((in_pratica.value or '').strip()):
+                        ui.notify('Il nome pratica deve terminare con _###### (es. _012025)', type='warning'); return False
+                    return True
+
+                in_cliente.on('blur', lambda e: _append_suffix_if_missing(in_cliente, pattern_cartella, oggi_str))
+                in_pratica.on('blur', lambda e: _append_suffix_if_missing(in_pratica, pattern_cartella_p, id_suffix))
+
+                with ui.row().classes('w-full justify-between mt-2'):
+                    ui.button('Elenco pratiche', on_click=_popup_elenco_pratiche).props('icon=folder')
+                    with ui.row().classes('gap-2'):
+                        def hard_refresh(): ui.navigate.reload()
+
+                        def salva():
+                            if not _validate_required():
+                                return
+                            user = (in_user.value or '').strip() if hasattr(in_user, 'value') else ''
+                            cartella_cliente = (in_cliente.value or '').strip()
+                            cartella_pratica = (in_pratica.value or '').strip()
+                            base_path = (in_percorso.value or '').strip()
+
+                            cliente_path = os.path.join(base_path, cartella_cliente)
+                            pratica_path = os.path.join(cliente_path, cartella_pratica)
+                            try:
+                                os.makedirs(os.path.join(pratica_path, 'log_pratica'), exist_ok=True)
+                                os.makedirs(os.path.join(pratica_path, 'documenti_pratica'), exist_ok=True)
+                            except Exception as e:
+                                ui.notify(f'Errore creazione cartelle: {e}', type='negative'); return
+
+                            numero, anno = load_next_id()
+                            id_str = f"{numero}/{anno}"
+
+                            esiste, nome_esistente = _id_exists(numero, anno)
+
+                            def _prosegui(def_num: int, def_anno: int):
+                                id_eff = f"{def_num}/{def_anno}"
+                                pratica_data["id_pratica"] = id_eff
+                                pratica_data['percorso_pratica'] = pratica_path
+                                pratica_data['nome_pratica'] = cartella_pratica
+
+                                try:
+                                    log_apertura(
+                                        user=user,
+                                        id_pratica=id_eff,
+                                        base_path=base_path,
+                                        cliente_path=cliente_path,
+                                        pratica_path=pratica_path,
+                                    )
+                                except Exception as e:
+                                    ui.notify(f'Errore scrittura log: {e}', type='warning')
+
+                                try:
+                                    write_pratica(folder=Path(pratica_path), data=pratica_data, actor=user or "system")
+                                    persist_after_save(def_num, def_anno, pratica_data.get("nome_pratica",""), pratica_data.get("percorso_pratica",""), created_by=user)
+                                    reindex(root=Path("archivio"), db_path=Path("archivio/indice.sqlite"))
+                                    try:
+                                        canon_path = Path(pratica_path) / 'pratica.json'
+                                        js_text = canon_path.read_text(encoding='utf-8')
+                                        base_id = str(pratica_data.get("id_pratica", "")).replace("/", "")
+                                        base_id = re.sub(r'[^A-Za-z0-9_-]+', '', base_id)
+                                        if base_id:
+                                            out_ds = dual_save(
+                                                pratica_folder=Path(pratica_path),
+                                                backup_dir=Path("archivio/backups_json"),
+                                                base_id=base_id,
+                                                json_text=js_text,
+                                            )
+                                            from pathlib import Path as _P
+                                            ui.notify(f"Copia: {_P(out_ds['timestamped_path']).name} — Backup: {_P(out_ds['backup_path']).name}", type='positive')
+                                    except Exception as _e_ds:
+                                        ui.notify(f"Dual-save non riuscito: {_e_ds}", type='warning')
+
+                                except Exception as e:
+                                    ui.notify(f"Errore durante il salvataggio: {e}", type="negative"); return
+
+                                try:
+                                    on_set_user_label(user)
+                                except Exception:
+                                    pass
+
+                                ui.notify(f'Pratica {id_eff} creata e salvata correttamente', type='positive')
+                                dialog.close()
+
+                            if esiste and (nome_esistente or '') != cartella_pratica:
+                                d = ui.dialog()
+                                with d, ui.card().classes('w-[700px] max-w-[95vw]'):
+                                    ui.label('Conflitto ID pratica').classes('text-xl font-semibold')
+                                    ui.separator()
+                                    ui.label(
+                                        f"L'ID {id_str} esiste già"
+                                        + (f" con nome: {nome_esistente!r}." if nome_esistente else ".")
+                                        + " Vuoi sovrascrivere questo ID o usare il primo ID successivo disponibile?"
+                                    ).classes('text-sm')
+                                    ui.separator()
+                                    with ui.row().classes('justify-end gap-2 w-full'):
+                                        def _sovrascrivi():
+                                            d.close(); _prosegui(numero, anno)
+                                        def _usa_prossimo():
+                                            d.close(); nuovo_num = _next_id_for_year(anno); _prosegui(nuovo_num, anno)
+                                        ui.button('Sovrascrivi (stesso ID)', on_click=_sovrascrivi).props('color=negative')
+                                        ui.button('Usa prossimo ID', on_click=_usa_prossimo).props('color=primary')
+                                        ui.button('Annulla', on_click=d.close).props('flat')
+                                d.open(); return
+                            else:
+                                _prosegui(numero, anno)
+
+                        ui.button('SALVA', on_click=salva).props('icon=save color=positive')
+                        ui.button('', on_click=hard_refresh).props('icon=refresh flat')
+
+            # ===========================================
+            # COLONNA B: MODIFICA PRATICA ESISTENTE (carica JSON)
+
+
+
+            # ===========================================
+            with ui.column().classes('flex-1 min-w-[460px]'):
+                ui.label('Modifica pratica esistente (carica JSON)').classes('text-lg font-semibold')
+
+                # Import SQL (Carica) – come Salva
+                try:
+                    inject_import_sql_carica(container=ui.column().classes('mt-2'))
+                except Exception as _e:
+                    ui.notify(f'Import SQL non disponibile: {_e}', color='warning')
+
+                # Import SQL (Carica) – come Salva
+                try:
+                    inject_import_sql_carica(container=ui.column().classes('mt-2'))
+                except Exception as _e:
+                    ui.notify(f'Import SQL non disponibile: {_e}', color='warning')
+
+                status = ui.label('').classes('text-xs text-gray-600 mb-2')
+
+                def _handle_upload(e):
+                    # 1) Estrai i bytes dal payload (compat NiceGUI)
+                    try:
+                        payload = getattr(e, 'content', None) or getattr(e, 'file', None) or None
+                        if payload is None and hasattr(e, 'files'):
+                            files = e.files or []
+                            if files:
+                                payload = files[0].content
+                        if payload is None:
+                            ui.notify('Upload vuoto', color='negative'); return
+
+                        if hasattr(payload, 'read'):
+                            data = payload.read()
+                        else:
+                            data = payload
+
+                        text = data.decode('utf-8') if isinstance(data, (bytes, bytearray)) else str(data)
+                        import json
+                        record = json.loads(text)
+                    except Exception as exc:
+                        ui.notify(f'Caricamento fallito: {exc}', color='negative'); return
+
+                    # 2) Persisti nello storage utente
+                    try:
+                        from nicegui import app as _app_
+                        _app_.storage.general['pratica_loaded_record'] = record
+                    except Exception:
+                        pass
+
+                    # 3) Applica allo stato
+                    _apply_record_to_state(record, pratica_data, anagrafica_data)
+                    status.text = 'File caricato correttamente'; status.update()
+                    ui.notify('Dati caricati nella pratica', color='positive')
+
+                    # 4) Aggiorna UI collegata e chiudi popup
+                    try:
+                        pratica_data.get('refresh_pratica', lambda: None)()
+                    except Exception:
+                        pass
+                    for k in ('refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+                        try:
+                            pratica_data.get(k, lambda: None)()
+                        except Exception:
+                            pass
+                    ui.notify('Pratica caricata: interfaccia aggiornata', type='positive')
+                    try:
+                        dialog.close()
+                    except Exception:
+                        pass
+                    try:
+                        ui.timer(0.05, lambda: ui.navigate.reload(), once=True)
+                    except Exception:
+                        pass
+
+                ui.upload(label='Seleziona file JSON', on_upload=_handle_upload).props('accept=.json').classes('mb-2')
+
+                path_state: Dict[str, Any] = {'path': ''}
+                ui.input('Oppure percorso file JSON sul server', placeholder='/percorso/pratica/9_2025_gp_11082025_170314.json').bind_value(path_state, 'path').classes('w-full mb-2')
+
+                def _load_from_path():
+                    p = Path((path_state.get('path') or '').strip())
+                    if not p.exists():
+                        ui.notify('Percorso non trovato', color='negative'); return
+                    try:
+                        text = p.read_text(encoding='utf-8')
+                        import json
+                        record = json.loads(text)
+                    except Exception as exc:
+                        ui.notify(f'JSON non valido: {exc}', color='negative'); return
+                    _apply_record_to_state(record, pratica_data, anagrafica_data)
+                    ui.notify('Dati caricati dalla path', color='positive')
+
+                    try:
+                        pratica_data.get('refresh_pratica', lambda: None)()
+                    except Exception:
+                        pass
+                    for k in ('refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+                        try:
+                            pratica_data.get(k, lambda: None)()
+                        except Exception:
+                            pass
+                    ui.notify('Pratica caricata: interfaccia aggiornata', type='positive')
+                    try:
+                        dialog.close()
+                    except Exception:
+                        pass
+                    try:
+                        ui.timer(0.05, lambda: ui.navigate.reload(), once=True)
+                    except Exception:
+                        pass
+
+                with ui.row().classes('gap-2 mb-2'):
+                    ui.button('Carica da percorso', on_click=_load_from_path).props('icon=folder_open color=primary flat')
+                    ui.button('Apri cartella pratica', on_click=lambda: _open_path(pratica_data.get('percorso_pratica', ''))).props('icon=folder flat')
+
+                # Azione di import SQL: disponibile solo se il modulo è presente e il DB esiste
+                # Questa funzionalità consente di applicare uno script .sql generato dall'export
+                # a un database esistente. L'upload accetta file con estensione .sql. Una volta
+                # completato l'import, viene ricaricata l'interfaccia per aggiornare l'elenco
+                # delle pratiche. Eventuali errori vengono mostrati tramite notifica.
+                if _import_sql is not None:
+                    def _handle_sql_upload(e):
+                        try:
+                            # Estrai i bytes dal payload dell'upload (NiceGUI fornisce diversi campi a seconda della versione)
+                            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or None
+                            if payload is None and hasattr(e, 'files'):
+                                files = e.files or []
+                                if files:
+                                    payload = files[0].content
+                            if payload is None:
+                                ui.notify('Upload vuoto', color='negative'); return
+
+                            if hasattr(payload, 'read'):
+                                data = payload.read()
+                            else:
+                                data = payload
+                            if not data:
+                                ui.notify('Nessun contenuto nel file', color='negative'); return
+
+                            # Salva il contenuto in un file temporaneo
+                            import tempfile, uuid
+                            tmp_dir = tempfile.gettempdir()
+                            tmp_name = f"import_{uuid.uuid4().hex}.sql"
+                            tmp_path = os.path.join(tmp_dir, tmp_name)
+                            with open(tmp_path, 'wb') as f:
+                                if isinstance(data, str):
+                                    f.write(data.encode('utf-8'))
+                                else:
+                                    f.write(data)
+
+                            # Esegui l'import: DB_PATH definito a livello di modulo
+                            try:
+                                stats = _import_sql(DB_PATH, tmp_path)  # type: ignore[call-arg]
+                            except Exception as exc:
+                                ui.notify(f'Import SQL fallito: {exc}', color='negative'); return
+
+                            # Notifica esito positivo
+                            msg = f"Import SQL completato: {stats.get('changes', 0)} modifiche"
+                            if stats.get('tables'):
+                                msg += f" su tabelle {', '.join(stats['tables'])}"
+                            ui.notify(msg, color='positive')
+
+                            # Ricarica l'elenco pratiche e UI
+                            try:
+                                ui.navigate.reload()
+                            except Exception:
+                                pass
+                        except Exception as exc:
+                            ui.notify(f'Errore durante l\'import: {exc}', color='negative')
+
+                    ui.upload(label='Importa da SQL', on_upload=_handle_sql_upload).props('accept=.sql').classes('mb-2')
+
+                with ui.column().classes('gap-1 mt-2'):
+                    ui.label().bind_text_from(pratica_data, 'id_pratica', lambda v: f'ID pratica: {v or "(n/d)"}').classes('text-sm')
+                    ui.label().bind_text_from(pratica_data, 'percorso_pratica', lambda v: f'Cartella: {v or "(non impostata)"}').classes('text-sm')
+
+        # Fine due colonne
+
+    dialog.open()
+
+
+
+
+
+
+
+def inject_import_sql_carica(*, container) -> None:
+    """Da chiamare DENTRO la sezione 'Modifica pratica esistente'.
+    Aggiunge upload .sql + bottone 'Carica' che, come 'Salva', chiude Apertura pratica e apre Gestione pratiche.
+    """
+    from typing import Optional
+    import asyncio, os, re
+    from pathlib import Path
+    try:
+        from sql_import import import_pratica_sql  # (changed: bool, id_raw: Optional[str])
+    except Exception:
+        import_pratica_sql = None
+
+    def _gp_read_text(path: Path) -> str:
+        try:
+            return path.read_text(encoding='utf-8', errors='ignore')
+        except Exception:
+            return path.read_text(errors='ignore')
+
+    def _gp_hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export pratica\s+([^\s]+)", sql_text)
+        if m:
+            return m.group(1).strip()
+        m = re.search(r"WHERE\s+(?:id_pratica|pratica_id)\s*=\s*'([^']+)'", sql_text, re.IGNORECASE)
+        return m.group(1).strip() if m else None
+
+    async def _gp_import_and_navigate(sql_text: str, id_hint: Optional[str] = None) -> None:
+        from nicegui import ui
+        if import_pratica_sql is None:
+            ui.notify('Import SQL non disponibile (manca sql_import.py)', color='negative', close_button='✖')
+            return
+        db_path = os.environ.get('GP_DB_PATH', str(Path('archivio') / '0gp.sqlite'))
+        changed, id_raw = await asyncio.to_thread(import_pratica_sql, db_path, sql_text)
+        focus_id = id_raw or id_hint
+
+        if changed:
+            ui.notify('Import completato', color='positive')
+        else:
+            ui.notify('Import eseguito: nessuna modifica rilevata', color='warning')
+
+        # prova funzioni di navigazione "come Salva"
+        for name in ['vai_a_gestione_pratiche','go_to_gestione_pratiche','apri_gestione_pratiche','open_gestione_pratiche',
+                     '_vai_a_gestione_pratiche','_open_gestione_pratiche','chiudi_e_apri_gestione_pratiche']:
+            fn = globals().get(name)
+            if callable(fn):
+                try:
+                    return fn(focus_id) if focus_id is not None else fn()
+                except TypeError:
+                    try: return fn()
+                    except Exception: pass
+
+        # fallback
+        target = '/gestione_pratiche'
+        if focus_id:
+            try:
+                from urllib.parse import quote
+                target = f'{target}?import={quote(str(focus_id))}'
+            except Exception:
+                pass
+            ui.run_javascript(f"localStorage.setItem('gp_last_import','{str(focus_id)}');")
+        ui.open(target)
+
+    from nicegui import ui
+    state = {'sql_text': None, 'id_hint': None}
+    with container:
+        ui.separator()
+        ui.label('Importa SQL').classes('text-sm text-gray-500')
+
+        upload = ui.upload(
+            label='Seleziona file .sql',
+            auto_upload=True,
+            max_files=1
+        ).props('accept=.sql')
+
+        carica_btn = ui.button('Carica').props('color=primary')
+        carica_btn.disable()
+
+        async def _on_uploaded(e):
+            try:
+                path = None
+                if hasattr(e, 'content') and hasattr(e.content, 'path'):
+                    path = Path(e.content.path)
+                elif hasattr(e, 'files') and e.files:
+                    blob = e.files[0].content.read()
+                    tmp = Path(f'__tmp_import_{ui.utils.random_string(8)}.sql')
+                    tmp.write_bytes(blob)
+                    path = tmp
+
+                if path and path.exists():
+                    sql_text = _gp_read_text(path)
+                else:
+                    data = getattr(e, 'content', None)
+                    if data and hasattr(data, 'read'):
+                        sql_text = data.read().decode('utf-8', errors='ignore')
+                    else:
+                        from nicegui import ui
+                        ui.notify('Impossibile leggere il file SQL', color='negative', close_button='✖')
+                        return
+
+                state['sql_text'] = sql_text
+                state['id_hint'] = _gp_hint_id(sql_text)
+                carica_btn.enable()
+                from nicegui import ui
+                ui.notify('File SQL caricato. Premi "Carica" per importare.', color='primary')
+
+            except Exception as ex:
+                from nicegui import ui
+                ui.notify(f'Errore caricamento SQL: {ex}', color='negative', close_button='✖')
+
+        upload.on('uploaded', _on_uploaded)
+        async def _on_carica():
+            from nicegui import ui
+            if not state['sql_text']:
+                ui.notify('Nessun file SQL caricato', color='warning')
+                return
+            carica_btn.disable()
+            try:
+                await _gp_import_and_navigate(state['sql_text'], id_hint=state['id_hint'])
+            except Exception as ex:
+                ui.notify(f'Errore durante import SQL: {ex}', color='negative', close_button='✖')
+            finally:
+                carica_btn.enable()
+
+def inject_import_sql_carica(*, container) -> None:
+    """Da chiamare DENTRO la sezione 'Modifica pratica esistente'.
+    Upload .sql + bottone 'Carica' che, come 'Salva', chiude Apertura pratica e apre Gestione pratiche.
+    """
+    from typing import Optional
+    import asyncio, os, re
+    from pathlib import Path
+    from nicegui import ui
+    try:
+        from sql_import import import_pratica_sql  # (changed: bool, id_raw: Optional[str])
+    except Exception:
+        import_pratica_sql = None
+
+    def _gp_read_text(path: Path) -> str:
+        try:
+            return path.read_text(encoding='utf-8', errors='ignore')
+        except Exception:
+            return path.read_text(errors='ignore')
+
+    def _gp_hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export pratica\s+([^\s]+)", sql_text)
+        if m:
+            return m.group(1).strip()
+        m = re.search(r"WHERE\s+(?:id_pratica|pratica_id)\s*=\s*'([^']+)'", sql_text, re.IGNORECASE)
+        return m.group(1).strip() if m else None
+
+    async def _gp_import_and_navigate(sql_text: str, id_hint: Optional[str] = None) -> None:
+        if import_pratica_sql is None:
+            ui.notify('Import SQL non disponibile (manca sql_import.py)', color='negative', close_button='✖')
+            return
+        db_path = os.environ.get('GP_DB_PATH', str(Path('archivio') / '0gp.sqlite'))
+        changed, id_raw = await asyncio.to_thread(import_pratica_sql, db_path, sql_text)
+        focus_id = id_raw or id_hint
+        if changed:
+            ui.notify('Import completato', color='positive')
+        else:
+            ui.notify('Import eseguito: nessuna modifica rilevata', color='warning')
+
+        # Navigazione "come Salva"
+        for name in ['vai_a_gestione_pratiche','go_to_gestione_pratiche','apri_gestione_pratiche','open_gestione_pratiche',
+                     '_vai_a_gestione_pratiche','_open_gestione_pratiche','chiudi_e_apri_gestione_pratiche']:
+            fn = globals().get(name)
+            if callable(fn):
+                try:
+                    return fn(focus_id) if focus_id is not None else fn()
+                except TypeError:
+                    try:
+                        return fn()
+                    except Exception:
+                        pass
+
+        # Fallback: querystring + localStorage
+        target = '/gestione_pratiche'
+        if focus_id:
+            try:
+                from urllib.parse import quote
+                target = f'{target}?import={quote(str(focus_id))}'
+            except Exception:
+                pass
+            ui.run_javascript(f"localStorage.setItem('gp_last_import','{str(focus_id)}');")
+        ui.open(target)
+
+    state = {'sql_text': None, 'id_hint': None}
+    with container:
+        ui.separator()
+        ui.label('Importa SQL').classes('text-sm text-gray-500')
+
+        upload = ui.upload(
+            label='Seleziona file .sql',
+            auto_upload=True,
+            max_files=1
+        ).props('accept=.sql')
+
+        carica_btn = ui.button('Carica').props('color=primary')
+        carica_btn.disable()
+
+        async def _on_uploaded(e):
+            try:
+                path = None
+                if hasattr(e, 'content') and hasattr(e.content, 'path'):
+                    path = Path(e.content.path)
+                elif hasattr(e, 'files') and e.files:
+                    blob = e.files[0].content.read()
+                    tmp = Path(f'__tmp_import_{ui.utils.random_string(8)}.sql')
+                    tmp.write_bytes(blob)
+                    path = tmp
+
+                if path and path.exists():
+                    sql_text = _gp_read_text(path)
+                else:
+                    data = getattr(e, 'content', None)
+                    if data and hasattr(data, 'read'):
+                        sql_text = data.read().decode('utf-8', errors='ignore')
+                    else:
+                        ui.notify('Impossibile leggere il file SQL', color='negative', close_button='✖')
+                        return
+
+                state['sql_text'] = sql_text
+                state['id_hint'] = _gp_hint_id(sql_text)
+                carica_btn.enable()
+                ui.notify('File SQL caricato. Premi \"Carica\" per importare.', color='primary')
+
+            except Exception as ex:
+                ui.notify(f'Errore caricamento SQL: {ex}', color='negative', close_button='✖')
+
+        upload.on('uploaded', _on_uploaded)
+
+        async def _on_carica(_=None):
+            if not state['sql_text']:
+                ui.notify('Nessun file SQL caricato', color='warning')
+                return
+            carica_btn.disable()
+            try:
+                await _gp_import_and_navigate(state['sql_text'], id_hint=state['id_hint'])
+            except Exception as ex:
+                ui.notify(f'Errore durante import SQL: {ex}', color='negative', close_button='✖')
+            finally:
+                carica_btn.enable()
+
+        carica_btn.on('click', _on_carica)
+
+# --- BEGIN SQL import micro patch (2025-08-17) ---
+from pathlib import Path
+import os
+
+try:
+    from nicegui import ui
+except Exception:
+    # Se NiceGUI non è disponibile, non facciamo nulla
+    ui = None
+
+# tenta di importare la connessione al DB
+try:
+    from db_core import get_connection as _get_connection
+except Exception:
+    _get_connection = None
+
+# DB_PATH: prova a leggerlo da gtil_def, altrimenti fallback locale
+try:
+    from gtil_def import DB_PATH  # se definito nella tua codebase
+except Exception:
+    DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+def _ensure_db_initialized():
+    """Crea cartella DB e, se possibile, applica lo schema iniziale."""
+    try:
+        Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+        if _get_connection is None:
+            return
+        need_init = not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0
+        if need_init and os.path.exists('db_schema.sql'):
+            with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                schema_sql = f.read()
+            with _get_connection(DB_PATH) as con:
+                con.executescript(schema_sql)
+    except Exception as e:
+        print(f'[sql-import] init skipped: {e}')
+
+# flag per impedire duplicazioni del widget (la funzione potrebbe essere chiamata due volte)
+_import_sql_widget_injected = False
+
+def inject_import_sql_carica(container):
+    """Widget unico per importare una pratica da file .sql nel DB SQLite.
+
+    - Usa on_upload (evento standard di NiceGUI)
+    - È idempotente: alla seconda chiamata non ricrea i controlli
+    - Inizializza il DB se assente
+    """
+    global _import_sql_widget_injected
+    if ui is None:
+        return
+    if _import_sql_widget_injected:
+        # Mostra un messaggio leggero, ma non ricrea il widget
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').style('opacity:0.6;font-size:0.9em')
+        return
+    _import_sql_widget_injected = True
+
+    # import "canonica": testo SQL -> DB
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Modulo sql_import non disponibile: {e}').classes('text-negative')
+        return
+
+    state = {'sql_text': None}
+
+    def _on_uploaded(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            ui.notify('File SQL caricato', type='positive')
+        except Exception as ex:
+            state['sql_text'] = None
+            ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import():
+        if not state.get('sql_text'):
+            ui.notify('Nessun file SQL caricato', type='warning'); return
+        if _get_connection is None:
+            ui.notify('Supporto DB non disponibile', type='negative'); return
+
+        _ensure_db_initialized()
+        try:
+            with _get_connection(DB_PATH) as con:
+                _import_pratica_sql(con, state['sql_text'])
+            ui.notify('Import da SQL completato', type='positive')
+            # ricarica per far comparire subito le pratiche nel tab DB
+            try:
+                ui.timer(0.05, lambda: ui.navigate.reload(), once=True)
+            except Exception:
+                pass
+        except Exception as ex:
+            ui.notify(f'Import SQL fallito: {ex}', type='negative')
+
+    # UI
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-lg')
+        ui.upload('Seleziona file .sql', on_upload=_on_uploaded).props('accept=.sql').classes('mb-2')
+        ui.button('Carica', on_click=_do_import).props('color=primary').classes('mt-1')
+
+# --- END SQL import micro patch ---
+
+# --- BEGIN SQL import micro patch (2025-08-17) ---
+from pathlib import Path
+import os
+
+try:
+    from nicegui import ui
+except Exception:
+    # Se NiceGUI non è disponibile, non facciamo nulla
+    ui = None
+
+# tenta di importare la connessione al DB
+try:
+    from db_core import get_connection as _get_connection
+except Exception:
+    _get_connection = None
+
+# DB_PATH: prova a leggerlo da gtil_def, altrimenti fallback locale
+try:
+    from gtil_def import DB_PATH  # se definito nella tua codebase
+except Exception:
+    DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+def _ensure_db_initialized():
+    """Crea cartella DB e, se possibile, applica lo schema iniziale."""
+    try:
+        Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+        if _get_connection is None:
+            return
+        need_init = not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0
+        if need_init and os.path.exists('db_schema.sql'):
+            with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                schema_sql = f.read()
+            with _get_connection(DB_PATH) as con:
+                con.executescript(schema_sql)
+    except Exception as e:
+        print(f'[sql-import] init skipped: {e}')
+
+# flag per impedire duplicazioni del widget (la funzione potrebbe essere chiamata due volte)
+_import_sql_widget_injected = False
+
+def inject_import_sql_carica(container):
+    """Widget unico per importare una pratica da file .sql nel DB SQLite.
+
+    - Usa on_upload (evento standard di NiceGUI)
+    - È idempotente: alla seconda chiamata non ricrea i controlli
+    - Inizializza il DB se assente
+    """
+    global _import_sql_widget_injected
+    if ui is None:
+        return
+    if _import_sql_widget_injected:
+        # Mostra un messaggio leggero, ma non ricrea il widget
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').style('opacity:0.6;font-size:0.9em')
+        return
+    _import_sql_widget_injected = True
+
+    # import "canonica": testo SQL -> DB
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Modulo sql_import non disponibile: {e}').classes('text-negative')
+        return
+
+    state = {'sql_text': None}
+
+    def _on_uploaded(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            ui.notify('File SQL caricato', type='positive')
+        except Exception as ex:
+            state['sql_text'] = None
+            ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import():
+        if not state.get('sql_text'):
+            ui.notify('Nessun file SQL caricato', type='warning'); return
+        if _get_connection is None:
+            ui.notify('Supporto DB non disponibile', type='negative'); return
+
+        _ensure_db_initialized()
+        try:
+            with _get_connection(DB_PATH) as con:
+                _import_pratica_sql(con, state['sql_text'])
+            ui.notify('Import da SQL completato', type='positive')
+            # ricarica per far comparire subito le pratiche nel tab DB
+            try:
+                ui.timer(0.05, lambda: ui.navigate.reload(), once=True)
+            except Exception:
+                pass
+        except Exception as ex:
+            ui.notify(f'Import SQL fallito: {ex}', type='negative')
+
+    # UI
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-lg')
+        ui.upload('Seleziona file .sql', on_upload=_on_uploaded).props('accept=.sql').classes('mb-2')
+        ui.button('Carica', on_click=_do_import).props('color=primary').classes('mt-1')
+
+# --- END SQL import micro patch ---
+
+# --- HOTFIX NiceGUI upload signature (2025-08-17) ---
+def inject_import_sql_carica(container):
+    """Widget unico per importare una pratica da file .sql nel DB SQLite.
+    Corretto: label passato come keyword (label=...) per ui.upload.
+    """
+    from pathlib import Path
+    import os
+
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+
+    # dipendenze già definite nella micro-patch precedente
+    try:
+        from nicegui import ui
+    except Exception:
+        return
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    try:
+        _get_connection
+    except NameError:
+        with container:
+            ui.separator()
+            ui.label('Supporto DB non disponibile').classes('text-negative')
+        return
+
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').style('opacity:0.6;font-size:0.9em')
+        return
+    _import_sql_widget_injected = True
+
+    # stato locale
+    state = {'sql_text': None}
+
+    def _on_uploaded(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            ui.notify('File SQL caricato', type='positive')
+        except Exception as ex:
+            state['sql_text'] = None
+            ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _ensure_db_initialized():
+        try:
+            Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+            # se definita, usa la connessione e applica schema se DB vuoto
+            need_init = not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0
+            if need_init and os.path.exists('db_schema.sql'):
+                with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                    schema_sql = f.read()
+                with _get_connection(DB_PATH) as con:
+                    con.executescript(schema_sql)
+        except Exception as e:
+            print(f'[sql-import] init skipped: {e}')
+
+    def _do_import():
+        if not state.get('sql_text'):
+            ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+        try:
+            with _get_connection(DB_PATH) as con:
+                _import_pratica_sql(con, state['sql_text'])
+            ui.notify('Import da SQL completato', type='positive')
+            ui.timer(0.05, lambda: ui.navigate.reload(), once=True)
+        except Exception as ex:
+            ui.notify(f'Import SQL fallito: {ex}', type='negative')
+
+    # UI
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-lg')
+        ui.upload(on_upload=_on_uploaded, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        ui.button('Carica', on_click=_do_import).props('color=primary').classes('mt-1')
+# --- END HOTFIX ---
+
+# --- HOTFIX2 import_pratica_sql expects DB path (2025-08-17) ---
+def inject_import_sql_carica(container):
+    """Widget unico per importare una pratica da file .sql nel DB SQLite.
+    Corretto: passiamo DB_PATH (stringa) a import_pratica_sql, non una Connection.
+    """
+    from pathlib import Path
+    import os
+    try:
+        from nicegui import ui
+    except Exception:
+        return
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    # DB_PATH e _get_connection dovrebbero essere già disponibili nel modulo;
+    # se non lo sono, proviamo a definirli rapidamente:
+    try:
+        DB_PATH
+    except NameError:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+    try:
+        _get_connection
+    except NameError:
+        _get_connection = None
+
+    # evita doppie iniezioni
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').style('opacity:0.6;font-size:0.9em')
+        return
+    _import_sql_widget_injected = True
+
+    state = {'sql_text': None}
+
+    def _on_uploaded(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            ui.notify('File SQL caricato', type='positive')
+        except Exception as ex:
+            state['sql_text'] = None
+            ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _ensure_db_initialized():
+        try:
+            Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+            # Se il DB è mancante o vuoto, inizializza con lo schema (se disponibile)
+            need_init = not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0
+            if need_init and os.path.exists('db_schema.sql') and _get_connection is not None:
+                with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                    schema_sql = f.read()
+                with _get_connection(DB_PATH) as con:
+                    con.executescript(schema_sql)
+        except Exception as e:
+            print(f'[sql-import] init skipped: {e}')
+
+    def _do_import():
+        if not state.get('sql_text'):
+            ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+        try:
+            # ⬇️ FIX: passiamo il percorso del DB, non l'oggetto Connection
+            _import_pratica_sql(DB_PATH, state['sql_text'])
+            ui.notify('Import da SQL completato', type='positive')
+            ui.timer(0.05, lambda: ui.navigate.reload(), once=True)
+        except Exception as ex:
+            ui.notify(f'Import SQL fallito: {ex}', type='negative')
+
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-lg')
+        ui.upload(on_upload=_on_uploaded, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        ui.button('Carica', on_click=_do_import).props('color=primary').classes('mt-1')
+# --- END HOTFIX2 ---
+    _popup_state['dialog'] = dialog
+
+# --- HOTFIX3: Import SQL → applica allo stato e chiudi il dialog principale (no reload) ---
+def inject_import_sql_carica(container):
+    """Importa pratica da .sql → aggiorna UI come SALVA e chiude il popup principale."""
+    import os
+    from pathlib import Path
+    try:
+        from nicegui import ui, app as _app_
+    except Exception:
+        return
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    # dipendenze definite nel modulo
+    try:
+        DB_PATH
+    except NameError:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+    try:
+        _load_pratica_db
+    except NameError:
+        _load_pratica_db = None
+
+    # evita doppie iniezioni
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').style('opacity:0.6;font-size:0.9em')
+        return
+    _import_sql_widget_injected = True
+
+    state = {'sql_text': None}
+
+    def _on_uploaded(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            ui.notify('File SQL caricato', type='positive')
+        except Exception as ex:
+            state['sql_text'] = None
+            ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _ensure_db_initialized():
+        try:
+            Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+            # opzionale: inizializza schema se DB mancante/vuoto e schema presente
+            if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql'):
+                from db_core import get_connection as __get
+                with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                    schema_sql = f.read()
+                with __get(DB_PATH) as con:
+                    con.executescript(schema_sql)
+        except Exception as e:
+            print(f'[sql-import] init skipped: {e}')
+
+    def _apply_and_close(record):
+        # 1) storage condiviso, come nel flow JSON/SALVA
+        try:
+            _app_.storage.general['pratica_loaded_record'] = record
+        except Exception:
+            pass
+        # 2) applica allo stato UI
+        try:
+            from typing import Dict, Any as _Any
+            def _apply_db_pratica_to_state(db_pratica: dict, pratica_data: dict, anagrafica_data: dict):
+                # usa la funzione già presente nel modulo, se esiste
+                pass
+        except Exception:
+            pass
+        try:
+            # usa la funzione definita nel file originale
+            _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+        except Exception:
+            # fallback minimale
+            try:
+                _popup_state['pratica_data'].update(record or {})
+            except Exception:
+                pass
+        # 3) refresh UI collegata
+        for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+            try:
+                _popup_state['pratica_data'].get(k, lambda: None)()
+            except Exception:
+                pass
+        try:
+            _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+        except Exception:
+            pass
+        ui.notify('Pratica importata e caricata', type='positive')
+        # 4) chiudi il dialog principale (comportamento come SALVA)
+        try:
+            dlg = _popup_state.get('dialog')
+            if dlg:
+                dlg.close()
+                return
+        except Exception:
+            pass
+        # fallback: nessun close possibile → suggerisci chiusura manuale
+        ui.notify('Chiudi la finestra di apertura per continuare.', type='warning')
+
+    def _do_import():
+        if not state.get('sql_text'):
+            ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+        try:
+            changed, pid = _import_pratica_sql(DB_PATH, state['sql_text'])
+            if not changed:
+                ui.notify('Import eseguito: nessuna modifica rilevata', type='warning'); return
+            # carica dal DB la pratica importata (se l’ID è stato riconosciuto)
+            record = None
+            if pid and _load_pratica_db is not None:
+                try:
+                    record = _load_pratica_db(pid)
+                except Exception:
+                    record = None
+            if record:
+                _apply_and_close(record)
+            else:
+                ui.notify('Import completato. Apri la pratica dal tab DB.', type='positive')
+        except Exception as ex:
+            ui.notify(f'Import SQL fallito: {ex}', type='negative')
+
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-lg')
+        ui.upload(on_upload=_on_uploaded, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        ui.button('Carica', on_click=_do_import).props('color=primary').classes('mt-1')
+# --- END HOTFIX3 ---
+
+# --- HOTFIX4: Import SQL -> apri subito la pratica importata (2025-08-17) ---
+def inject_import_sql_carica(container):
+    """
+    Importa pratica da .sql e APRE subito la pratica in UI:
+    - ricava id_pratica dall'header o dal DELETE ... WHERE id_pratica=...
+    - fallback: ultima pratica per updated_at/created_at
+    - carica via repo_sqlite.load_pratica(conn=...) e chiude il dialog principale
+    """
+    import os, re
+    from pathlib import Path
+    try:
+        from nicegui import ui, app as _app_
+    except Exception:
+        return
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    # dipendenze e util
+    try:
+        from db_core import get_connection as _get_connection
+    except Exception:
+        _get_connection = None
+    try:
+        from repo_sqlite import load_pratica as _load_pratica_db
+    except Exception:
+        _load_pratica_db = None
+
+    try:
+        DB_PATH
+    except NameError:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+    # evita doppie iniezioni
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').style('opacity:0.6;font-size:0.9em')
+        return
+    _import_sql_widget_injected = True
+
+    state = {'sql_text': None}
+
+    def _on_uploaded(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            ui.notify('File SQL caricato', type='positive')
+        except Exception as ex:
+            state['sql_text'] = None
+            ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _ensure_db_initialized():
+        try:
+            Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+            # se DB mancante/vuoto -> applica schema (se disponibile)
+            if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql') and _get_connection is not None:
+                with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                    schema_sql = f.read()
+                with _get_connection(DB_PATH) as con:
+                    con.executescript(schema_sql)
+        except Exception as e:
+            print(f'[sql-import] init skipped: {e}')
+
+    def _apply_and_close(record: dict):
+        # metti a disposizione anche ad altre pagine (come fa SALVA)
+        try:
+            _app_.storage.general['pratica_loaded_record'] = record
+        except Exception:
+            pass
+        # applica allo stato UI
+        try:
+            _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+        except Exception:
+            try:
+                _popup_state['pratica_data'].update(record or {})
+            except Exception:
+                pass
+        # refresh controlli con callback note nel file
+        for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+            try:
+                _popup_state['pratica_data'].get(k, lambda: None)()
+            except Exception:
+                pass
+        try:
+            _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+        except Exception:
+            pass
+        ui.notify('Pratica importata e caricata', type='positive')
+        # chiudi il dialog principale
+        try:
+            dlg = _popup_state.get('dialog')
+            if dlg:
+                dlg.close()
+                return
+        except Exception:
+            pass
+        # fallback soft
+        ui.notify('Chiudi la finestra di apertura per continuare.', type='warning')
+
+    def _extract_pid_from_sql(sql_text: str):
+        # 1) header export: "-- Export pratica <ID>"
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m:
+            return m.group(1)
+        # 2) DELETE FROM pratiche WHERE id_pratica='<ID>';
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m:
+            return m.group(1) or m.group(2) or m.group(3)
+        # 3) INSERT INTO pratiche (...) VALUES (...) -> mappa colonne/valori
+        m = re.search(r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)", sql_text, re.IGNORECASE)
+        if m:
+            cols = [c.strip().strip('`"') for c in m.group(1).split(',')]
+            vals = [v.strip() for v in m.group(2).split(',')]
+            try:
+                idx = [c.lower() for c in cols].index('id_pratica')
+                v = vals[idx]
+                # rimuovi quote se presenti
+                if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')):
+                    v = v[1:-1]
+                return v
+            except Exception:
+                pass
+        return None
+
+    def _fallback_last_id(conn):
+        try:
+            row = conn.execute(
+                "SELECT id_pratica FROM pratiche ORDER BY COALESCE(updated_at, created_at) DESC, rowid DESC LIMIT 1"
+            ).fetchone()
+            return row[0] if row else None
+        except Exception:
+            return None
+
+    def _do_import():
+        if not state.get('sql_text'):
+            ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+        try:
+            changed, pid = _import_pratica_sql(DB_PATH, state['sql_text'])
+            # prova a dedurre ID anche senza header export
+            if not pid:
+                pid = _extract_pid_from_sql(state['sql_text'])
+            record = None
+            with _get_connection(DB_PATH) as con:
+                if not pid:
+                    pid = _fallback_last_id(con)
+                if pid and _load_pratica_db is not None:
+                    try:
+                        record = _load_pratica_db(pid, conn=con)
+                    except Exception:
+                        record = None
+            if record:
+                _apply_and_close(record)
+            else:
+                ui.notify('Import completato. Apri la pratica dal tab DB.', type='positive')
+        except Exception as ex:
+            ui.notify(f'Import SQL fallito: {ex}', type='negative')
+
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-lg')
+        ui.upload(on_upload=_on_uploaded, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        ui.button('Carica', on_click=_do_import).props('color=primary').classes('mt-1')
+# --- END HOTFIX4 ---
+    _popup_state['dialog'] = dialog
+
+# --- PATCH: inject_import_sql_carica (idempotente, chiude il dialog e apre la pratica) ---
+_import_sql_widget_injected = globals().get('_import_sql_widget_injected', False)
+
+def inject_import_sql_carica(*, container) -> None:
+    """Upload .sql + 'Carica' -> importa su DB, applica allo stato UI, chiude il popup (come SALVA)."""
+    import os, re, asyncio
+    from pathlib import Path
+    from typing import Optional
+    from nicegui import ui
+
+    global _import_sql_widget_injected
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').classes('text-xs text-gray-600')
+        return
+    _import_sql_widget_injected = True
+
+    # dipendenze lato DB
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql  # (changed: bool, id_raw: Optional[str])
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    # helper per ricavare l'ID dal testo SQL (header, DELETE, INSERT)
+    def _hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m: return m.group(1).strip()
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        m = re.search(r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)", sql_text, re.IGNORECASE)
+        if m:
+            cols = [c.strip().strip('`\"') for c in m.group(1).split(',')]
+            vals = [v.strip() for v in m.group(2).split(',')]
+            try:
+                idx = [c.lower() for c in cols].index('id_pratica')
+                v = vals[idx]
+                if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')): v = v[1:-1]
+                return v.strip()
+            except Exception:
+                pass
+        return None
+
+    # stato upload
+    state = {'sql_text': None, 'id_hint': None}
+
+    def _on_upload(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None)
+            if payload is None and hasattr(e, 'files') and e.files:
+                payload = e.files[0].content
+            if payload is None:
+                ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='ignore') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            state['id_hint'] = _hint_id(text)
+            btn_carica.enable()
+            ui.notify('File SQL caricato. Premi "Carica".', type='positive')
+        except Exception as ex:
+            ui.notify(f'Errore caricamento SQL: {ex}', type='negative')
+
+    async def _do_import():
+        if not state['sql_text']:
+            ui.notify('Nessun file SQL caricato', type='warning'); return
+
+        # 1) Importa SQL su DB
+        db_path = os.environ.get('GP_DB_PATH', str(Path('archivio') / '0gp.sqlite'))
+        try:
+            changed, id_raw = await asyncio.to_thread(_import_pratica_sql, db_path, state['sql_text'])
+        except Exception as ex:
+            ui.notify(f'Import SQL fallito: {ex}', type='negative'); return
+        focus_id = id_raw or state['id_hint']
+
+        ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+
+        # 2) Prova ad aprire SUBITO la pratica importata in UI
+        try:
+            from repo_sqlite import load_pratica as _load_pratica_db
+        except Exception:
+            _load_pratica_db = None
+
+        # fallback: se non abbiamo l'ID, prendi l'ultima pratica aggiornata
+        def _fallback_last_id():
+            try:
+                from db_core import get_connection as _get_connection
+                with _get_connection(db_path) as con:
+                    row = con.execute("SELECT id_pratica FROM pratiche ORDER BY COALESCE(updated_at, created_at) DESC, rowid DESC LIMIT 1").fetchone()
+                    return row[0] if row else None
+            except Exception:
+                return None
+
+        pid = focus_id or _fallback_last_id()
+        record = None
+        if pid and callable(_load_pratica_db):
+            try:
+                # firma più usata nel file: load_pratica(pid) senza conn
+                record = _load_pratica_db(pid)
+            except TypeError:
+                # eventuale firma con conn
+                try:
+                    from db_core import get_connection as _get_connection
+                    with _get_connection(db_path) as con:
+                        record = _load_pratica_db(pid, conn=con)  # type: ignore[call-arg]
+                except Exception:
+                    record = None
+
+        if record:
+            try:
+                # applica mapping DB -> stato UI (funzione già nel file)
+                _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+            except Exception:
+                pass
+            try:
+                _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+            except Exception:
+                pass
+            # 3) Chiudi il dialog principale (come SALVA) senza ricaricare la pagina
+            try:
+                dlg = _popup_state.get('dialog')
+                if dlg:
+                    dlg.close()
+                    return
+            except Exception:
+                pass
+
+        # 4) Se non siamo riusciti ad aprire la pratica, messaggio chiaro
+        ui.notify('Import completato. Apri la pratica dal tab DB.', type='warning')
+
+    # --- UI ---
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-sm text-gray-500')
+        ui.upload(on_upload=_on_upload, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        btn_carica = ui.button('Carica', on_click=lambda: asyncio.create_task(_do_import())).props('color=primary')
+        btn_carica.disable()
+
+# --- END PATCH ---
+
+# --- HOTFIX5 (NiceGUI context fix, 2025-08-17) ---
+def inject_import_sql_carica(*, container) -> None:
+    """
+    Importa pratica da .sql senza usare task in background.
+    Tutte le operazioni UI (notify, ecc.) avvengono dentro `with container:`
+    per avere uno slot valido. Se possibile, apre subito la pratica importata
+    e chiude il dialog principale (come SALVA).
+    """
+    import os, re
+    from pathlib import Path
+    from typing import Optional
+
+    try:
+        from nicegui import ui, app as _app_
+    except Exception:
+        return
+
+    # evita doppie iniezioni
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').classes('text-xs text-gray-600')
+        return
+    _import_sql_widget_injected = True
+
+    # dipendenze lato DB
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql  # firma: (db_path:str, sql_text:str) -> (changed:bool, id_raw:Optional[str])
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    try:
+        from db_core import get_connection as _get_connection
+    except Exception:
+        _get_connection = None
+    try:
+        from repo_sqlite import load_pratica as _load_pratica_db
+    except Exception:
+        _load_pratica_db = None
+
+    # DB path
+    try:
+        from gtil_def import DB_PATH as _DB_PATH
+        DB_PATH = _DB_PATH
+    except Exception:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+    state = {'sql_text': None, 'id_hint': None}
+
+    def _hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m: return m.group(1).strip()
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        m = re.search(r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)", sql_text, re.IGNORECASE)
+        if m:
+            cols = [c.strip().strip('`"') for c in m.group(1).split(',')]
+            vals = [v.strip() for v in m.group(2).split(',')]
+            try:
+                idx = [c.lower() for c in cols].index('id_pratica')
+                v = vals[idx]
+                if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')): v = v[1:-1]
+                return v.strip()
+            except Exception:
+                pass
+        return None
+
+    def _ensure_db_initialized():
+        try:
+            Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+            if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql') and _get_connection is not None:
+                with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                    schema_sql = f.read()
+                with _get_connection(DB_PATH) as con:
+                    con.executescript(schema_sql)
+        except Exception as e:
+            print(f'[sql-import] init skipped: {e}')
+
+    def _fallback_last_id():
+        if _get_connection is None:
+            return None
+        try:
+            with _get_connection(DB_PATH) as con:
+                row = con.execute("SELECT id_pratica FROM pratiche ORDER BY COALESCE(updated_at, created_at) DESC, rowid DESC LIMIT 1").fetchone()
+                return row[0] if row else None
+        except Exception:
+            return None
+
+    def _apply_and_close(record: dict):
+        # storage condiviso (come SALVA)
+        try:
+            _app_.storage.general['pratica_loaded_record'] = record
+        except Exception:
+            pass
+        # applica allo stato UI
+        try:
+            _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+        except Exception:
+            try:
+                _popup_state['pratica_data'].update(record or {})
+            except Exception:
+                pass
+        # callback di refresh
+        for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+            try:
+                _popup_state['pratica_data'].get(k, lambda: None)()
+            except Exception:
+                pass
+        try:
+            _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+        except Exception:
+            pass
+        # chiudi dialog principale
+        try:
+            dlg = _popup_state.get('dialog')
+            if dlg:
+                dlg.close()
+        except Exception:
+            pass
+
+    # --- Handlers UI (sincroni, nessun background) ---
+    def _on_upload(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                with container: ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            state['id_hint'] = _hint_id(text)
+            with container: ui.notify('File SQL caricato. Premi "Carica".', type='positive')
+            btn_carica.enable()
+        except Exception as ex:
+            with container: ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import(_=None):
+        if not state['sql_text']:
+            with container: ui.notify('Nessun file SQL caricato', type='warning')
+            return
+        _ensure_db_initialized()
+        # Importa sul DB (sincrono)
+        try:
+            changed, id_raw = _import_pratica_sql(DB_PATH, state['sql_text'])
+            with container: ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+        except Exception as ex:
+            with container: ui.notify(f'Import SQL fallito: {ex}', type='negative')
+            return
+
+        # prova ad aprire subito la pratica
+        pid = id_raw or state['id_hint'] or _fallback_last_id()
+        record = None
+        if pid and callable(_load_pratica_db):
+            try:
+                # prova senza conn
+                record = _load_pratica_db(pid)
+            except TypeError:
+                # alcuni repo accettano conn esplicita
+                if _get_connection is not None:
+                    try:
+                        with _get_connection(DB_PATH) as con:
+                            record = _load_pratica_db(pid, conn=con)  # type: ignore
+                    except Exception:
+                        record = None
+        if record:
+            _apply_and_close(record)
+        else:
+            with container: ui.notify('Import completato. Apri la pratica dal tab DB.', type='warning')
+
+    # --- UI ---
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-sm text-gray-500')
+        ui.upload(on_upload=_on_upload, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        btn_carica = ui.button('Carica', on_click=_do_import).props('color=primary')
+        btn_carica.disable()
+# --- END HOTFIX5 ---
+
+# --- HOTFIX6 (2025-08-17): load_pratica con Connection reale ---
+def inject_import_sql_carica(*, container) -> None:
+    """
+    Importa pratica da .sql (sincrono, nessun background) e apre subito la pratica:
+    - tutte le ui.notify(...) entro `with container:`
+    - dopo l'import, carica la pratica chiamando load_pratica(pid, conn=con)
+      per evitare l'errore '_GeneratorContextManager'...cursor.
+    """
+    import os, re
+    from pathlib import Path
+    from typing import Optional
+
+    # NiceGUI
+    try:
+        from nicegui import ui, app as _app_
+    except Exception:
+        return
+
+    # idempotenza
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').classes('text-xs text-gray-600')
+        return
+    _import_sql_widget_injected = True
+
+    # dipendenze DB
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql  # (db_path:str, sql_text:str) -> (changed:bool, id_raw:Optional[str])
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+    try:
+        from db_core import get_connection as _get_connection
+    except Exception:
+        _get_connection = None
+    try:
+        from repo_sqlite import load_pratica as _load_pratica_db
+    except Exception:
+        _load_pratica_db = None
+
+    # DB path
+    try:
+        from gtil_def import DB_PATH as _DB_PATH
+        DB_PATH = _DB_PATH
+    except Exception:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+    state = {'sql_text': None, 'id_hint': None}
+
+    def _hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m: return m.group(1).strip()
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        m = re.search(r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)", sql_text, re.IGNORECASE)
+        if m:
+            cols = [c.strip().strip('`\"') for c in m.group(1).split(',')]
+            vals = [v.strip() for v in m.group(2).split(',')]
+            try:
+                idx = [c.lower() for c in cols].index('id_pratica')
+                v = vals[idx]
+                if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')): v = v[1:-1]
+                return v.strip()
+            except Exception:
+                pass
+        return None
+
+    def _ensure_db_initialized():
+        try:
+            Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+            if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql') and _get_connection is not None:
+                with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                    schema_sql = f.read()
+                with _get_connection(DB_PATH) as con:
+                    con.executescript(schema_sql)
+        except Exception as e:
+            print(f'[sql-import] init skipped: {e}')
+
+    def _fallback_last_id():
+        if _get_connection is None:
+            return None
+        try:
+            with _get_connection(DB_PATH) as con:
+                row = con.execute("SELECT id_pratica FROM pratiche ORDER BY COALESCE(updated_at, created_at) DESC, rowid DESC LIMIT 1").fetchone()
+                return row[0] if row else None
+        except Exception:
+            return None
+
+    def _apply_and_close(record: dict):
+        # storage condiviso (come SALVA)
+        try:
+            _app_.storage.general['pratica_loaded_record'] = record
+        except Exception:
+            pass
+        # applica allo stato UI
+        try:
+            _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+        except Exception:
+            try:
+                _popup_state['pratica_data'].update(record or {})
+            except Exception:
+                pass
+        # callback di refresh
+        for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+            try:
+                _popup_state['pratica_data'].get(k, lambda: None)()
+            except Exception:
+                pass
+        try:
+            _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+        except Exception:
+            pass
+        # chiudi dialog principale
+        try:
+            dlg = _popup_state.get('dialog')
+            if dlg:
+                dlg.close()
+        except Exception:
+            pass
+
+    # --- Handlers UI (sincroni) ---
+    def _on_upload(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                with container: ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            state['id_hint'] = _hint_id(text)
+            with container: ui.notify('File SQL caricato. Premi "Carica".', type='positive')
+            btn_carica.enable()
+        except Exception as ex:
+            with container: ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import(_=None):
+        if not state['sql_text']:
+            with container: ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+
+        # 1) Importa sul DB
+        try:
+            changed, id_raw = _import_pratica_sql(DB_PATH, state['sql_text'])
+            with container: ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+        except Exception as ex:
+            with container: ui.notify(f'Import SQL fallito: {ex}', type='negative'); return
+
+        # 2) Determina l'ID da aprire
+        pid = id_raw or state['id_hint'] or _fallback_last_id()
+
+        # 3) Carica la pratica passando SEMPRE una Connection reale
+        record = None
+        if pid and callable(_load_pratica_db) and _get_connection is not None:
+            try:
+                with _get_connection(DB_PATH) as con:
+                    try:
+                        record = _load_pratica_db(pid, conn=con)  # preferito: con=Connection
+                    except TypeError:
+                        record = _load_pratica_db(pid)            # fallback: firma senza conn
+            except Exception:
+                record = None
+
+        if record:
+            _apply_and_close(record)
+        else:
+            with container: ui.notify('Import completato. Apri la pratica dal tab DB.', type='warning')
+
+    # --- UI ---
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-sm text-gray-500')
+        ui.upload(on_upload=_on_upload, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        btn_carica = ui.button('Carica', on_click=_do_import).props('color=primary')
+        btn_carica.disable()
+# --- END HOTFIX6 ---
+
+# --- HOTFIX7 (2025-08-17): trova PID in modo robusto e apri comunque la pratica ---
+def inject_import_sql_carica(*, container) -> None:
+    """
+    Import .sql (sincrono, no background) -> apre la pratica:
+    - trova l'ID dal testo SQL (header, DELETE, INSERT) oppure dal DB (rowid desc)
+    - carica con repo_sqlite.load_pratica passando SEMPRE conn
+    - fallback: se il repo fallisce, costruisce un record minimo da SELECT * su pratiche
+    - chiude il dialog principale (come SALVA)
+    """
+    import os, re, sqlite3
+    from pathlib import Path
+    from typing import Optional, Dict, Any
+
+    try:
+        from nicegui import ui, app as _app_
+    except Exception:
+        return
+
+    # idempotenza (non ricreare doppio widget)
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator()
+            ui.label('Import SQL già disponibile in questa pagina.').classes('text-xs text-gray-600')
+        return
+    _import_sql_widget_injected = True
+
+    # dipendenze DB
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql  # (db_path:str, sql_text:str) -> (changed:bool, id_raw:Optional[str])
+    except Exception as e:
+        with container:
+            ui.separator()
+            ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+    try:
+        from db_core import get_connection as _get_connection
+    except Exception:
+        _get_connection = None
+    try:
+        from repo_sqlite import load_pratica as _load_pratica_db
+    except Exception:
+        _load_pratica_db = None
+
+    # DB path
+    try:
+        from gtil_def import DB_PATH as _DB_PATH
+        DB_PATH = _DB_PATH
+    except Exception:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+    state = {'sql_text': None, 'id_hint': None}
+
+    # -------- helpers
+    def _hint_id(sql_text: str) -> Optional[str]:
+        # 1) header "Export pratica XYZ"
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m: return m.group(1).strip()
+        # 2) DELETE FROM pratiche WHERE id_pratica = '...'
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        # 3) DELETE ... WHERE id = '...'
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        # 4) INSERT INTO pratiche (...) VALUES (...), cerca colonna id_pratica o id
+        ins = re.search(r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)", sql_text, re.IGNORECASE)
+        if ins:
+            cols = [c.strip().strip('`"') for c in ins.group(1).split(',')]
+            vals = [v.strip() for v in ins.group(2).split(',')]
+            for target in ('id_pratica','id'):
+                try:
+                    idx = [c.lower() for c in cols].index(target)
+                    v = vals[idx]
+                    if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')): v = v[1:-1]
+                    return v.strip()
+                except Exception:
+                    pass
+        return None
+
+    def _ensure_db_initialized():
+        try:
+            Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+            if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql') and _get_connection is not None:
+                with open('db_schema.sql', 'r', encoding='utf-8') as f:
+                    schema_sql = f.read()
+                with _get_connection(DB_PATH) as con:
+                    con.executescript(schema_sql)
+        except Exception as e:
+            print(f'[sql-import] init skipped: {e}')
+
+    def _table_exists(con: sqlite3.Connection, name: str) -> bool:
+        row = con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1", (name,)).fetchone()
+        return bool(row)
+
+    def _guess_last_id(con: sqlite3.Connection) -> Optional[str]:
+        if not _table_exists(con, 'pratiche'):
+            return None
+        # prova id_pratica poi id, poi qualsiasi colonna testo
+        for col in ('id_pratica','id'):
+            try:
+                row = con.execute(f"SELECT {col} FROM pratiche ORDER BY rowid DESC LIMIT 1").fetchone()
+                if row and row[0]: return str(row[0])
+            except Exception:
+                pass
+        # prova a individuare una colonna testo
+        try:
+            cols = con.execute("PRAGMA table_info(pratiche)").fetchall()
+            text_cols = [c[1] for c in cols if isinstance(c[2], str) and c[2].upper().startswith(('TEXT','VARCHAR','CHAR'))]
+            for col in text_cols:
+                try:
+                    row = con.execute(f"SELECT {col} FROM pratiche ORDER BY rowid DESC LIMIT 1").fetchone()
+                    if row and row[0]: return str(row[0])
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        # extrema ratio: select first non-null text from last row
+        try:
+            row = con.execute("SELECT * FROM pratiche ORDER BY rowid DESC LIMIT 1").fetchone()
+            if row:
+                cols = [d[0] for d in con.execute("PRAGMA table_info(pratiche)")]
+        except Exception:
+            pass
+        return None
+
+    def _raw_load_record(con: sqlite3.Connection, pid: str) -> Optional[Dict[str, Any]]:
+        # tenta SELECT * per id_pratica o id
+        for col in ('id_pratica','id'):
+            try:
+                cur = con.execute(f"SELECT * FROM pratiche WHERE {col}=?", (pid,))
+                row = cur.fetchone()
+                if row:
+                    keys = [d[0] for d in cur.description]
+                    return dict(zip(keys, row))
+            except Exception:
+                continue
+        return None
+
+    def _apply_and_close(record: Dict[str, Any]):
+        # storage condiviso (come SALVA)
+        try:
+            _app_.storage.general['pratica_loaded_record'] = record
+        except Exception:
+            pass
+        # applica allo stato UI
+        try:
+            _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+        except Exception:
+            try:
+                _popup_state['pratica_data'].update(record or {})
+            except Exception:
+                pass
+        # callback di refresh
+        for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+            try:
+                _popup_state['pratica_data'].get(k, lambda: None)()
+            except Exception:
+                pass
+        try:
+            _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+        except Exception:
+            pass
+        # chiudi dialog principale
+        try:
+            dlg = _popup_state.get('dialog')
+            if dlg:
+                dlg.close()
+        except Exception:
+            pass
+
+    # -------- handlers UI (sincroni)
+    def _on_upload(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                with container: ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            state['id_hint'] = _hint_id(text)
+            with container: ui.notify('File SQL caricato. Premi "Carica".', type='positive')
+            btn_carica.enable()
+        except Exception as ex:
+            with container: ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import(_=None):
+        if not state['sql_text']:
+            with container: ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+
+        # 1) Importa sul DB
+        try:
+            changed, id_raw = _import_pratica_sql(DB_PATH, state['sql_text'])
+            with container: ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+        except Exception as ex:
+            with container: ui.notify(f'Import SQL fallito: {ex}', type='negative'); return
+
+        # 2) Risolvi PID
+        pid = id_raw or state['id_hint']
+        record = None
+        if _get_connection is not None:
+            try:
+                with _get_connection(DB_PATH) as con:
+                    if not pid:
+                        pid = _guess_last_id(con)
+                    # 3) Carica record via repo, passando SEMPRE conn
+                    if pid and callable(_load_pratica_db):
+                        try:
+                            record = _load_pratica_db(pid, conn=con)  # firma preferita
+                        except TypeError:
+                            record = _load_pratica_db(pid)            # fallback
+                    # 4) Fallback grezzo se il repo non restituisce nulla
+                    if record is None and pid:
+                        record = _raw_load_record(con, pid)
+            except Exception as ex:
+                with container: ui.notify(f'Errore apertura record: {ex}', type='negative')
+
+        # 5) Applica e chiudi, oppure notifica
+        if record:
+            _apply_and_close(record)
+        else:
+            with container: ui.notify('Import completato. Apri la pratica dal tab DB.', type='warning')
+
+    # --- UI ---
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-sm text-gray-500')
+        ui.upload(on_upload=_on_upload, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        btn_carica = ui.button('Carica', on_click=_do_import).props('color=primary')
+        btn_carica.disable()
+# --- END HOTFIX7 ---
+
+# --- HOTFIX8 (2025-08-17): Import SQL -> apri pratica senza repo, via sqlite3 ---
+def inject_import_sql_carica(*, container) -> None:
+    """Import .sql (sincrono) -> apre SUBITO la pratica:
+    - risolve id_pratica dall'SQL (header/DELETE/INSERT) oppure prende l'ultima riga
+    - costruisce il record con SELECT * su 'pratiche'
+    - applica allo stato e chiude il dialog principale (come SALVA)
+    """
+    import os, re, sqlite3
+    from pathlib import Path
+    from typing import Optional, Dict, Any
+    try:
+        from nicegui import ui, app as _app_
+    except Exception:
+        return
+
+    # idempotenza widget
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator(); ui.label('Import SQL già disponibile in questa pagina.').classes('text-xs text-gray-600')
+        return
+    _import_sql_widget_injected = True
+
+    # dipendenze import
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql  # (db_path, sql_text) -> (changed: bool, id_raw: Optional[str])
+    except Exception as e:
+        with container:
+            ui.separator(); ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    # DB PATH
+    try:
+        from gtil_def import DB_PATH as _DB_PATH
+        DB_PATH = _DB_PATH
+    except Exception:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+    state = {'sql_text': None, 'id_hint': None}
+
+    def _hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m: return m.group(1).strip()
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        ins = re.search(r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)", sql_text, re.IGNORECASE)
+        if ins:
+            cols = [c.strip().strip('`\"') for c in ins.group(1).split(',')]
+            vals = [v.strip() for v in ins.group(2).split(',')]
+            for target in ('id_pratica','id'):
+                try:
+                    idx = [c.lower() for c in cols].index(target)
+                    v = vals[idx]
+                    if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')): v = v[1:-1]
+                    return v.strip()
+                except Exception:
+                    pass
+        return None
+
+    def _ensure_db_initialized():
+        Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+        if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql'):
+            # inizializza schema base se DB nuovo
+            try:
+                schema_sql = Path('db_schema.sql').read_text(encoding='utf-8')
+                with sqlite3.connect(DB_PATH) as con:
+                    con.executescript(schema_sql)
+            except Exception as e:
+                print(f'[sql-import] init skipped: {e}')
+
+    def _fetch_record(pid: Optional[str]) -> Optional[Dict[str, Any]]:
+        """Restituisce dict con SELECT * su 'pratiche' (per id_pratica o id); 
+        se pid è None, prende l'ultima riga (rowid DESC)."""
+        with sqlite3.connect(DB_PATH) as con:
+            con.row_factory = sqlite3.Row
+            row = None
+            if pid:
+                for col in ('id_pratica','id'):
+                    try:
+                        row = con.execute(f"SELECT * FROM pratiche WHERE {col}=?", (pid,)).fetchone()
+                        if row: break
+                    except Exception:
+                        continue
+            if not row:
+                row = con.execute("SELECT * FROM pratiche ORDER BY rowid DESC LIMIT 1").fetchone()
+            if not row:
+                return None
+            return {k: row[k] for k in row.keys()}
+
+    def _apply_and_close(record: Dict[str, Any]):
+        # storage condiviso (come SALVA)
+        try:
+            _app_.storage.general['pratica_loaded_record'] = record
+        except Exception:
+            pass
+        # applica allo stato UI
+        try:
+            _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+        except Exception:
+            try:
+                _popup_state['pratica_data'].update(record or {})
+            except Exception:
+                pass
+        # refresh callback
+        for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+            try:
+                _popup_state['pratica_data'].get(k, lambda: None)()
+            except Exception:
+                pass
+        try:
+            _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+        except Exception:
+            pass
+        # chiudi dialog principale
+        try:
+            dlg = _popup_state.get('dialog')
+            if dlg: dlg.close()
+        except Exception:
+            pass
+
+    # --- Handlers UI ---
+    def _on_upload(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                with container: ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            state['id_hint'] = _hint_id(text)
+            with container: ui.notify('File SQL caricato. Premi "Carica".', type='positive')
+            btn_carica.enable()
+        except Exception as ex:
+            with container: ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import(_=None):
+        if not state['sql_text']:
+            with container: ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+
+        # 1) Import su DB
+        try:
+            changed, id_raw = _import_pratica_sql(DB_PATH, state['sql_text'])
+            with container: ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+        except Exception as ex:
+            with container: ui.notify(f'Import SQL fallito: {ex}', type='negative'); return
+
+        # 2) Carica record direttamente via sqlite3
+        pid = id_raw or state['id_hint']
+        record = _fetch_record(pid)
+
+        if record:
+            _apply_and_close(record)
+        else:
+            with container: ui.notify('Import completato. Apri la pratica dal tab DB.', type='warning')
+
+    # --- UI ---
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-sm text-gray-500')
+        ui.upload(on_upload=_on_upload, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        btn_carica = ui.button('Carica', on_click=_do_import).props('color=primary')
+        btn_carica.disable()
+# --- END HOTFIX8 ---
+
+# --- HOTFIX9 (2025-08-17): chiudi il dialog risalendo i parent + carica dati figli ---
+def inject_import_sql_carica(*, container) -> None:
+    """Import .sql (sincrono) -> apre SUBITO la pratica:
+    - risale i parent da `container` per trovare e chiudere il Dialog
+    - carica record principale **e** tabelle figlie (se esistono) da SQLite
+    - applica allo stato e chiude il dialog (come SALVA)
+    """
+    import os, re, sqlite3
+    from pathlib import Path
+    from typing import Optional, Dict, Any, List
+
+    try:
+        from nicegui import ui, app as _app_
+    except Exception:
+        return
+
+    # evita doppia iniezione
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator(); ui.label('Import SQL già disponibile in questa pagina.').classes('text-xs text-gray-600')
+        return
+    _import_sql_widget_injected = True
+
+    # dipendenza import
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql  # (db_path, sql_text) -> (changed: bool, id_raw: Optional[str])
+    except Exception as e:
+        with container:
+            ui.separator(); ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+
+    # DB PATH
+    try:
+        from gtil_def import DB_PATH as _DB_PATH
+        DB_PATH = _DB_PATH
+    except Exception:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+    # ---------- util UI / dialog ----------
+    def _find_dialog(el):
+        cur, steps = el, 0
+        while cur is not None and steps < 25:
+            if hasattr(cur, 'close') and hasattr(cur, 'open'):
+                return cur
+            cur = getattr(cur, 'parent', None)
+            steps += 1
+        return None
+    _DIALOG_REF = _find_dialog(container)
+
+    # ---------- helpers SQL ----------
+    def _hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m: return m.group(1).strip()
+        for pat in (
+            r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))",
+            r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))",
+            r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)"
+        ):
+            m = re.search(pat, sql_text, re.IGNORECASE)
+            if not m: 
+                continue
+            if len(m.groups()) == 3:    # DELETE ... WHERE ...
+                return (m.group(1) or m.group(2) or m.group(3)).strip()
+            else:                       # INSERT (...cols...) VALUES (...vals...)
+                cols = [c.strip().strip('`"') for c in m.group(1).split(',')]
+                vals = [v.strip() for v in m.group(2).split(',')]
+                for target in ('id_pratica', 'id'):
+                    try:
+                        idx = [c.lower() for c in cols].index(target)
+                        v = vals[idx]
+                        if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')): v = v[1:-1]
+                        return v.strip()
+                    except Exception:
+                        pass
+        return None
+
+    def _ensure_db_initialized():
+        Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+        if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql'):
+            try:
+                schema_sql = Path('db_schema.sql').read_text(encoding='utf-8')
+                with sqlite3.connect(DB_PATH) as con:
+                    con.executescript(schema_sql)
+            except Exception as e:
+                print(f'[sql-import] init skipped: {e}')
+
+    def _table_exists(con: sqlite3.Connection, name: str) -> bool:
+        row = con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1", (name,)).fetchone()
+        return bool(row)
+
+    def _fetchall(con: sqlite3.Connection, sql: str, args: tuple=()) -> List[Dict[str, Any]]:
+        con.row_factory = sqlite3.Row
+        cur = con.execute(sql, args)
+        rows = cur.fetchall()
+        return [{k: r[k] for k in r.keys()} for r in rows]
+
+    def _fetch_record_with_children(pid: Optional[str]) -> Optional[Dict[str, Any]]:
+        with sqlite3.connect(DB_PATH) as con:
+            con.row_factory = sqlite3.Row
+            row = None
+            if pid:
+                for col in ('id_pratica','id'):
+                    try:
+                        row = con.execute(f"SELECT * FROM pratiche WHERE {col}=?", (pid,)).fetchone()
+                        if row: break
+                    except Exception:
+                        continue
+            if not row:
+                row = con.execute("SELECT * FROM pratiche ORDER BY rowid DESC LIMIT 1").fetchone()
+            if not row:
+                return None
+            rec = {k: row[k] for k in row.keys()}
+
+            # carica tabelle figlie se esistono
+            child_tables = [
+                ('attivita', 'id_pratica'),
+                ('scadenze', 'id_pratica'),
+                ('documenti', 'id_pratica'),
+                ('pratica_tariffe', 'id_pratica'),
+                ('pratica_avvocati', 'id_pratica'),
+            ]
+            for tbl, col in child_tables:
+                try:
+                    if _table_exists(con, tbl):
+                        rec[tbl] = _fetchall(con, f"SELECT * FROM {tbl} WHERE {col}=?", (rec.get('id_pratica') or rec.get('id'),))
+                except Exception:
+                    pass
+            return rec
+
+    def _apply_and_close(record: Dict[str, Any]):
+        # storage condiviso (coerente con SALVA)
+        try:
+            _app_.storage.general['pratica_loaded_record'] = record
+        except Exception:
+            pass
+        # applica allo stato UI
+        try:
+            _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+        except Exception:
+            try:
+                _popup_state['pratica_data'].update(record or {})
+            except Exception:
+                pass
+        # refresh callback
+        for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+            try:
+                _popup_state['pratica_data'].get(k, lambda: None)()
+            except Exception:
+                pass
+        try:
+            _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+        except Exception:
+            pass
+        # chiudi davvero il dialog principale
+        if _DIALOG_REF and hasattr(_DIALOG_REF, 'close'):
+            with container:
+                _DIALOG_REF.close()
+        else:
+            with container:
+                ui.notify('Dialog non trovato: chiudi la finestra di apertura.', type='warning')
+
+    # --- Handlers UI (sincroni) ---
+    state = {'sql_text': None, 'id_hint': None}
+
+    def _on_upload(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                with container: ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            state['id_hint'] = _hint_id(text)
+            with container: ui.notify('File SQL caricato. Premi "Carica".', type='positive')
+            btn_carica.enable()
+        except Exception as ex:
+            with container: ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import(_=None):
+        if not state['sql_text']:
+            with container: ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+
+        # 1) Import su DB
+        try:
+            changed, id_raw = _import_pratica_sql(DB_PATH, state['sql_text'])
+            with container: ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+        except Exception as ex:
+            with container: ui.notify(f'Import SQL fallito: {ex}', type='negative'); return
+
+        # 2) Carica record completo (con figli) e chiudi
+        pid = id_raw or state['id_hint']
+        record = _fetch_record_with_children(pid)
+        if record:
+            _apply_and_close(record)
+        else:
+            with container: ui.notify('Import completato. Apri la pratica dal tab DB.', type='warning')
+
+    # --- UI ---
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-sm text-gray-500')
+        ui.upload(on_upload=_on_upload, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        btn_carica = ui.button('Carica', on_click=_do_import).props('color=primary')
+        btn_carica.disable()
+# --- END HOTFIX9 ---
+    # memorizza il dialog per poterlo chiudere dagli handler
+    try:
+        _popup_state['dialog'] = dialog
+    except Exception:
+        pass
+    try:
+        global APERTURA_DIALOG
+        APERTURA_DIALOG = dialog
+    except Exception:
+        pass
+
+# --- HOTFIX10 (2025-08-17): chiudi dialog e apri pratica completa via repo_sqlite ---
+def inject_import_sql_carica(*, container) -> None:
+    """
+    Import .sql (sincrono, no background) -> apre SUBITO la pratica:
+    - importa SQL
+    - risolve id_pratica dal testo o dal DB
+    - carica con repo_sqlite.load_pratica(pid, conn=sqlite3.connect(DB_PATH))
+    - applica allo stato e CHIUDE il dialog (_popup_state['dialog'] o APERTURA_DIALOG)
+    """
+    import os, re, sqlite3
+    from pathlib import Path
+    from typing import Optional
+
+    from nicegui import ui, app as _app_
+
+    # idempotenza
+    global _import_sql_widget_injected
+    try:
+        _import_sql_widget_injected
+    except NameError:
+        _import_sql_widget_injected = False
+    if _import_sql_widget_injected:
+        with container:
+            ui.separator(); ui.label('Import SQL già disponibile in questa pagina.').classes('text-xs text-gray-600')
+        return
+    _import_sql_widget_injected = True
+
+    # dipendenze
+    try:
+        from sql_import import import_pratica_sql as _import_pratica_sql  # (db_path, sql_text) -> (changed: bool, id_raw: Optional[str])
+    except Exception as e:
+        with container:
+            ui.separator(); ui.label(f'Import SQL non disponibile: {e}').classes('text-negative')
+        return
+    try:
+        from repo_sqlite import load_pratica as _load_pratica_db
+    except Exception as e:
+        with container:
+            ui.separator(); ui.label(f'load_pratica non disponibile: {e}').classes('text-negative')
+        return
+
+    # DB PATH
+    try:
+        from gtil_def import DB_PATH as _DB_PATH
+        DB_PATH = _DB_PATH
+    except Exception:
+        DB_PATH = os.environ.get('GP_DB_PATH', 'archivio/0gp.sqlite')
+
+    state = {'sql_text': None, 'id_hint': None}
+
+    def _hint_id(sql_text: str) -> Optional[str]:
+        m = re.search(r"Export\s+pratica\s+([^\s]+)", sql_text, re.IGNORECASE)
+        if m: return m.group(1).strip()
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id_pratica\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        m = re.search(r"DELETE\s+FROM\s+pratiche\s+WHERE\s+id\s*=\s*(?:'([^']+)'|\"([^\"]+)\"|([^\s;]+))", sql_text, re.IGNORECASE)
+        if m: return (m.group(1) or m.group(2) or m.group(3)).strip()
+        ins = re.search(r"INSERT\s+INTO\s+pratiche\s*\(([^)]+)\)\s*VALUES\s*\(([^)]+)\)", sql_text, re.IGNORECASE)
+        if ins:
+            cols = [c.strip().strip('`\"') for c in ins.group(1).split(',')]
+            vals = [v.strip() for v in ins.group(2).split(',')]
+            for target in ('id_pratica','id'):
+                try:
+                    idx = [c.lower() for c in cols].index(target)
+                    v = vals[idx]
+                    if (v.startswith("'") and v.endswith("'")) or (v.startswith('"') and v.endswith('"')): v = v[1:-1]
+                    return v.strip()
+                except Exception:
+                    pass
+        return None
+
+    def _ensure_db_initialized():
+        Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
+        if (not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0) and os.path.exists('db_schema.sql'):
+            try:
+                schema_sql = Path('db_schema.sql').read_text(encoding='utf-8')
+                with sqlite3.connect(DB_PATH) as con:
+                    con.executescript(schema_sql)
+            except Exception as e:
+                print(f'[sql-import] init skipped: {e}')
+
+    # ---- handlers UI (sincroni) ----
+    def _on_upload(e):
+        try:
+            payload = getattr(e, 'content', None) or getattr(e, 'file', None) or (e.files[0].content if getattr(e, 'files', None) else None)
+            if not payload:
+                with container: ui.notify('Upload vuoto', type='negative'); return
+            data = payload.read() if hasattr(payload, 'read') else payload
+            text = data.decode('utf-8', errors='replace') if isinstance(data, (bytes, bytearray)) else str(data)
+            state['sql_text'] = text
+            state['id_hint'] = _hint_id(text)
+            with container: ui.notify('File SQL caricato. Premi "Carica".', type='positive')
+            btn_carica.enable()
+        except Exception as ex:
+            with container: ui.notify(f'Caricamento SQL fallito: {ex}', type='negative')
+
+    def _do_import(_=None):
+        if not state['sql_text']:
+            with container: ui.notify('Nessun file SQL caricato', type='warning'); return
+        _ensure_db_initialized()
+
+        # 1) Import su DB
+        try:
+            changed, id_raw = _import_pratica_sql(DB_PATH, state['sql_text'])
+            with container: ui.notify('Import completato' if changed else 'Nessuna modifica (SQL idempotente)', type='positive' if changed else 'warning')
+        except Exception as ex:
+            with container: ui.notify(f'Import SQL fallito: {ex}', type='negative'); return
+
+        # 2) Determina ID da aprire
+        pid = id_raw or state['id_hint']
+
+        # 3) Carica la pratica via repo_sqlite con Connection reale
+        record = None
+        try:
+            con = sqlite3.connect(DB_PATH)
+            try:
+                if pid:
+                    record = _load_pratica_db(pid, conn=con)  # firma preferita: (id, conn=)
+                else:
+                    # se non abbiamo un pid, prova l'ultima per rowid
+                    cur = con.execute("SELECT id_pratica FROM pratiche ORDER BY rowid DESC LIMIT 1")
+                    row = cur.fetchone()
+                    if row and row[0]:
+                        record = _load_pratica_db(row[0], conn=con)
+            finally:
+                con.close()
+        except TypeError:
+            # fallback: alcune versioni hanno firma senza conn
+            if pid:
+                record = _load_pratica_db(pid)
+
+        # 4) Applica allo stato e CHIUDI il dialog (come SALVA)
+        if record:
+            try:
+                _app_.storage.general['pratica_loaded_record'] = record
+            except Exception:
+                pass
+            try:
+                _apply_db_pratica_to_state(record, _popup_state['pratica_data'], _popup_state['anagrafica_data'])
+            except Exception:
+                try:
+                    _popup_state['pratica_data'].update(record or {})
+                except Exception:
+                    pass
+            for k in ('refresh_pratica', 'refresh_settori', 'refresh_materie', 'refresh_avvocati'):
+                try:
+                    _popup_state['pratica_data'].get(k, lambda: None)()
+                except Exception:
+                    pass
+            try:
+                _popup_state['on_set_user_label'](_popup_state.get('user') or '')
+            except Exception:
+                pass
+
+            # CHIUDI dialog: prima _popup_state['dialog'], altrimenti APERTURA_DIALOG
+            dlg = (_popup_state.get('dialog') if isinstance(globals().get('_popup_state'), dict) else None) or globals().get('APERTURA_DIALOG')
+            if dlg and hasattr(dlg, 'close'):
+                with container: dlg.close()
+            else:
+                with container: ui.notify('Dialog non referenziato: chiudilo manualmente.', type='warning')
+        else:
+            with container: ui.notify('Import completato. Apri la pratica dal tab DB.', type='warning')
+
+    # --- UI ---
+    with container:
+        ui.separator()
+        ui.label('Importa pratica da file .sql').classes('text-sm text-gray-500')
+        ui.upload(on_upload=_on_upload, label='Seleziona file .sql').props('accept=.sql').classes('mb-2')
+        btn_carica = ui.button('Carica', on_click=_do_import).props('color=primary')
+        btn_carica.disable()
+# --- END HOTFIX10 ---
+    # memorizza il dialog per poterlo chiudere dagli handler
+    try:
+        _popup_state['dialog'] = dialog
+    except Exception:
+        pass
+    try:
+        global APERTURA_DIALOG
+        APERTURA_DIALOG = dialog
+    except Exception:
+        pass

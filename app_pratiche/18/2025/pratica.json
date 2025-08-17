@@ -1,0 +1,163 @@
+{
+  "id_pratica": "18/2025",
+  "nome_pratica": "u_182025",
+  "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/u_17082025/u_182025",
+  "data_apertura": null,
+  "data_chiusura": null,
+  "valore_pratica": "35.000",
+  "tipo_pratica": {
+    "value": 0,
+    "label": "Contenzioso"
+  },
+  "settore_pratica": {
+    "value": 10,
+    "label": "Altro"
+  },
+  "materia_pratica": {
+    "value": 1,
+    "label": "Penale"
+  },
+  "avvocato_referente": {
+    "value": 1,
+    "label": "Chiara Cremona"
+  },
+  "avvocato_in_mandato": [
+    {
+      "value": 1,
+      "label": "Chiara Cremona"
+    }
+  ],
+  "preventivo_inviato": true,
+  "note": "niente",
+  "tipo_tariffe": [
+    {
+      "value": 1,
+      "label": "Tariffa oraria"
+    },
+    {
+      "value": 2,
+      "label": "Forfait"
+    }
+  ],
+  "_tariffe_widgets": [
+    [
+      null,
+      "Tariffa oraria"
+    ],
+    [
+      null,
+      "Forfait"
+    ]
+  ],
+  "settore_element": "Altro",
+  "materia_element": "Penale",
+  "avv_referente_element": "Chiara Cremona",
+  "avv_mandato_element": [
+    "Chiara Cremona"
+  ],
+  "tariffe_contenzioso": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "totale_contenzioso": 0.0,
+  "totale_stragiudiziale": 0.0,
+  "totale_generale": 0.0,
+  "tariffe_stragiudiziale": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "scadenze": [
+    {
+      "descrizione": "xxxxxxxxxxx",
+      "data_inizio": "15/09/2025 20.00.00",
+      "data_scadenza": "15/09/2025 20.45.00",
+      "minuti_prima_allert": 30,
+      "durata_stimata": 45,
+      "durata_effettiva": 45.0,
+      "scadenza": false,
+      "tariffa_oraria": 300.0,
+      "tariffa_stimata": "225.00",
+      "tariffa_effettiva": "225.00",
+      "id_evento": ""
+    }
+  ],
+  "scadenze_totale_durata_stimata": 45,
+  "scadenze_totale_tariffa_stimata": 225.0,
+  "scadenze_totale_tariffa_effettiva": 225.0
+}

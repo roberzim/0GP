@@ -1,0 +1,207 @@
+{
+  "id_pratica": "20/2025",
+  "nome_pratica": "MO_202025",
+  "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/MO_17082025/MO_202025",
+  "data_apertura": [
+    "2025-08-17",
+    "add-day",
+    {
+      "year": 2025,
+      "month": 8,
+      "day": 17
+    }
+  ],
+  "data_chiusura": [
+    "2025-08-27",
+    "add-day",
+    {
+      "year": 2025,
+      "month": 8,
+      "day": 27
+    }
+  ],
+  "valore_pratica": "36.000",
+  "tipo_pratica": {
+    "value": 1,
+    "label": "Stragiudiziale"
+  },
+  "settore_pratica": {
+    "value": 8,
+    "label": "Agroalimentare"
+  },
+  "materia_pratica": {
+    "value": 2,
+    "label": "Commerciale"
+  },
+  "avvocato_referente": {
+    "value": 0,
+    "label": "Claudio Palmieri"
+  },
+  "avvocato_in_mandato": [
+    {
+      "value": 2,
+      "label": "Claudio Palmieri & Chiara Cremona"
+    }
+  ],
+  "preventivo_inviato": true,
+  "note": "no",
+  "tipo_tariffe": [
+    {
+      "value": 1,
+      "label": "Tariffa oraria"
+    },
+    {
+      "value": 4,
+      "label": "Tabelle ministeriali"
+    }
+  ],
+  "_tariffe_widgets": [
+    [
+      null,
+      "Tariffa oraria"
+    ],
+    [
+      null,
+      "Tabelle ministeriali"
+    ]
+  ],
+  "settore_element": "Agroalimentare",
+  "materia_element": "Commerciale",
+  "avv_referente_element": "Claudio Palmieri",
+  "avv_mandato_element": [
+    "Claudio Palmieri & Chiara Cremona"
+  ],
+  "tariffe_contenzioso": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "totale_contenzioso": 0.0,
+  "totale_stragiudiziale": 134945.36,
+  "totale_generale": 134945.36,
+  "tariffe_stragiudiziale": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "scadenze": [
+    {
+      "descrizione": "",
+      "data_inizio": "",
+      "data_scadenza": "",
+      "minuti_prima_allert": 30,
+      "durata_stimata": 0,
+      "durata_effettiva": null,
+      "scadenza": false,
+      "tariffa_oraria": 300.0,
+      "tariffa_stimata": "0.00",
+      "tariffa_effettiva": "0.00",
+      "id_evento": ""
+    }
+  ],
+  "scadenze_totale_durata_stimata": 0,
+  "scadenze_totale_tariffa_stimata": 0.0,
+  "scadenze_totale_tariffa_effettiva": 0.0,
+  "preventivi_stragiudiziale": {
+    "1": {
+      "id": "a8c795f2-f2ff-4c81-a1d2-c1f130288f79",
+      "numero": 1,
+      "dati": {
+        "fasi": {},
+        "prospetto": {
+          "Compenso tabellare": 111122.82,
+          "Spese di trasferta": 10000.0,
+          "Spese generali (15%)": 18168.42,
+          "Cassa Avvocati (4%)": 5571.65,
+          "IVA (22%)": 31869.84,
+          "Ritenuta d'acconto (30%)": -41787.37,
+          "TOTALE DOCUMENTO": 134945.36
+        },
+        "totale_documento": 134945.36
+      },
+      "metadata": {
+        "data": "2025-08-11",
+        "ambito": "Giudizi innanzi al Tribunale Amministrativo Regionale",
+        "scaglione": "20000000.01-22000000.00",
+        "tipoTariffario": "stragiudiziale",
+        "ivaApplicata": true,
+        "cpaApplicata": true,
+        "ritenutaApplicata": "30%"
+      }
+    }
+  }
+}
