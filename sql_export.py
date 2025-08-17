@@ -1,85 +1,51 @@
+
 from __future__ import annotations
-import sqlite3
-from typing import Any, Iterable
-
-def _q(v: Any) -> str:
-    if v is None:
-        return "NULL"
-    if isinstance(v, (int, float)):
-        return str(v)
-    s = str(v)
-    return "'" + s.replace("'", "''") + "'"
-
-def _colnames(conn: sqlite3.Connection, table: str) -> list[str]:
-    """
-    Ritorna i nomi delle colonne della tabella nell'ordine definito,
-    usando PRAGMA table_info(<table>). L'indice 1 è il nome (stringa).
-    """
-    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
-    names: list[str] = []
-    for r in rows:
-        # r è tipicamente una tupla: (cid:int, name:str, type:str, ...)
-        try:
-            names.append(r[1])
-        except Exception:
-            # fallback prudente
-            n = r["name"] if hasattr(r, "keys") and "name" in r.keys() else str(r[1])
-            names.append(n)
-    return names
+import sqlite3, datetime
+from typing import List
+from sql_utils import pragma_columns, quote_sql, find_pratica_column
 
 def render_pratica_sql(conn: sqlite3.Connection, id_pratica: str) -> str:
-    # Assicura Row factory per accesso per nome
     try:
         conn.row_factory = sqlite3.Row
     except Exception:
         pass
 
-    # Pratica
-    pr = conn.execute("SELECT * FROM pratiche WHERE id_pratica=?", (id_pratica,)).fetchone()
-    if not pr:
-        return "BEGIN;\n-- Nessuna pratica trovata\nCOMMIT;\n"
-
-    cols_p = _colnames(conn, "pratiche")
-    vals_p = [pr[c] if (hasattr(pr, "keys") and c in pr.keys()) else None for c in cols_p]
-    ins_p  = f"INSERT INTO pratiche ({', '.join(cols_p)}) VALUES ({', '.join(_q(v) for v in vals_p)});"
-
-    # Scadenze
-    sc_rows = conn.execute(
-        "SELECT * FROM scadenze WHERE id_pratica=? ORDER BY pos, id",
-        (id_pratica,)
-    ).fetchall()
-    sc_sql: list[str] = []
-    if sc_rows:
-        cols_s = _colnames(conn, "scadenze")
-        for r in sc_rows:
-            vals = [r[c] if (hasattr(r, "keys") and c in r.keys()) else None for c in cols_s]
-            sc_sql.append(
-                f"INSERT INTO scadenze ({', '.join(cols_s)}) VALUES ({', '.join(_q(v) for v in vals)});"
-            )
-
-    # Documenti
-    dc_rows = conn.execute(
-        "SELECT * FROM documenti WHERE id_pratica=? ORDER BY pos, id",
-        (id_pratica,)
-    ).fetchall()
-    dc_sql: list[str] = []
-    if dc_rows:
-        cols_d = _colnames(conn, "documenti")
-        for r in dc_rows:
-            vals = [r[c] if (hasattr(r, "keys") and c in r.keys()) else None for c in cols_d]
-            dc_sql.append(
-                f"INSERT INTO documenti ({', '.join(cols_d)}) VALUES ({', '.join(_q(v) for v in vals)});"
-            )
-
-    parts = [
+    parts: List[str] = [
+        f"-- Export pratica {id_pratica}",
+        f"-- Generato: {datetime.datetime.now().isoformat(timespec='seconds')}" ,
         "BEGIN;",
-        "-- pratica",
-        ins_p,
-        "-- scadenze",
-        *sc_sql,
-        "-- documenti",
-        *dc_sql,
-        "COMMIT;",
-        "",
     ]
+
+    # Pratiche (se esiste)
+    try:
+        cols_p = pragma_columns(conn, 'pratiche')
+        if cols_p:
+            pr = conn.execute("SELECT * FROM pratiche WHERE id_pratica=?", (id_pratica,)).fetchone()
+            parts.append("-- pratiche")
+            parts.append(f"DELETE FROM pratiche WHERE id_pratica={quote_sql(id_pratica)};")
+            if pr:
+                vals_p = [pr[c] if (hasattr(pr, 'keys') and c in pr.keys()) else None for c in cols_p]
+                parts.append(f"INSERT INTO pratiche ({', '.join(cols_p)}) VALUES ({', '.join(quote_sql(v) for v in vals_p)});")
+    except Exception:
+        pass
+
+    # Altre tabelle correlate
+    table_rows = 0
+    for (t,) in conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != 'pratiche' ORDER BY 1"):
+        pratica_col = find_pratica_column(conn, t)
+        if not pratica_col:
+            continue
+        rows = conn.execute(f"SELECT * FROM {t} WHERE {pratica_col}=? ORDER BY 1", (id_pratica,)).fetchall()
+        cols = pragma_columns(conn, t)
+        parts.append(f"-- {t}")
+        parts.append(f"DELETE FROM {t} WHERE {pratica_col}={quote_sql(id_pratica)};")
+        for r in rows:
+            vals = [r[c] if (hasattr(r, 'keys') and c in r.keys()) else None for c in cols]
+            parts.append(f"INSERT INTO {t} ({', '.join(cols)}) VALUES ({', '.join(quote_sql(v) for v in vals)});")
+        table_rows += len(rows)
+
+    parts.append("COMMIT;")
+    if table_rows == 0:
+        parts.append(f"-- Nessuna riga figlia trovata per pratica {id_pratica}")
+    parts.append("")
     return "\n".join(parts)

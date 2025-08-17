@@ -1072,3 +1072,113 @@ NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
 Index OK: inserite 0, aggiornate 0
 NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
 Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+[ERROR] dual_save: nessun dizionario 'pratica' fornito (nemmeno come argomento posizionale).
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 55, in dual_save
+    raise RuntimeError("dual_save: 'pratica' mancante o non valida. Passa un dict con id_pratica/id/codice.")
+RuntimeError: dual_save: 'pratica' mancante o non valida. Passa un dict con id_pratica/id/codice.
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 146, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 84, in salva_tutto
+    app_folder = Path(json_root) / pid
+                 ~~~~^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/pathlib/_local.py", line 503, in __init__
+    super().__init__(*args)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/pathlib/_local.py", line 132, in __init__
+    raise TypeError(
+    ...<2 lines>...
+        f"not {type(path).__name__!r}")
+TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'
+argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 146, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 84, in salva_tutto
+    app_folder = Path(json_root) / pid
+                 ~~~~^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/pathlib/_local.py", line 503, in __init__
+    super().__init__(*args)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/pathlib/_local.py", line 132, in __init__
+    raise TypeError(
+    ...<2 lines>...
+        f"not {type(path).__name__!r}")
+TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 169, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 71, in salva_tutto
+    app_folder = Path(json_root) / pid
+                 ~~~~^^^^^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/pathlib/_local.py", line 503, in __init__
+    super().__init__(*args)
+    ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/pathlib/_local.py", line 132, in __init__
+    raise TypeError(
+    ...<2 lines>...
+        f"not {type(path).__name__!r}")
+TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'dict'
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+[WARN] DB write failed, file JSON scritti comunque: Error binding parameter 4: type 'dict' is not supported
+[WARN] DB write failed, file JSON scritti comunque: Error binding parameter 4: type 'dict' is not supported
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+[WARN] DB write failed, file JSON scritti comunque: 'str' object has no attribute 'get'
+[WARN] DB write failed, file JSON scritti comunque: 'str' object has no attribute 'get'
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080

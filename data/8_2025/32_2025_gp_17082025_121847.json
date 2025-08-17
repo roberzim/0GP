@@ -1,0 +1,179 @@
+{
+  "id_pratica": "32/2025",
+  "nome_pratica": "Y_322025",
+  "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/Y_17082025/Y_322025",
+  "data_apertura": [
+    "2025-08-17",
+    "add-day",
+    {
+      "year": 2025,
+      "month": 8,
+      "day": 17
+    }
+  ],
+  "data_chiusura": [
+    "2025-08-30",
+    "add-day",
+    {
+      "year": 2025,
+      "month": 8,
+      "day": 30
+    }
+  ],
+  "valore_pratica": "25.000",
+  "tipo_pratica": {
+    "value": 1,
+    "label": "Stragiudiziale"
+  },
+  "settore_pratica": {
+    "value": 9,
+    "label": "Agroalimentare & Tecnologia"
+  },
+  "materia_pratica": {
+    "value": 5,
+    "label": "Unione europea"
+  },
+  "avvocato_referente": {
+    "value": 0,
+    "label": "Claudio Palmieri"
+  },
+  "avvocato_in_mandato": [
+    {
+      "value": 0,
+      "label": "Claudio Palmieri"
+    }
+  ],
+  "preventivo_inviato": true,
+  "note": "no",
+  "tipo_tariffe": [
+    {
+      "value": 2,
+      "label": "Forfait"
+    },
+    {
+      "value": 1,
+      "label": "Tariffa oraria"
+    }
+  ],
+  "_tariffe_widgets": [
+    [
+      null,
+      "Forfait"
+    ],
+    [
+      null,
+      "Tariffa oraria"
+    ]
+  ],
+  "settore_element": "Agroalimentare & Tecnologia",
+  "materia_element": "Unione europea",
+  "avv_referente_element": "Claudio Palmieri",
+  "avv_mandato_element": [
+    "Claudio Palmieri"
+  ],
+  "tariffe_contenzioso": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "totale_contenzioso": 0.0,
+  "totale_stragiudiziale": 0.0,
+  "totale_generale": 0.0,
+  "tariffe_stragiudiziale": {
+    "Base": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Forfait": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "A Percentuale": [
+      {
+        "note": "",
+        "tot": "",
+        "valore": "",
+        "percentuale": ""
+      }
+    ],
+    "A Risultato": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ],
+    "Oraria": [
+      {
+        "note": "",
+        "tot": "",
+        "tariffa_oraria": "",
+        "tempo_stimato": ""
+      }
+    ],
+    "Abbonamento": [
+      {
+        "note": "",
+        "tot": ""
+      }
+    ]
+  },
+  "scadenze": [
+    {
+      "descrizione": "",
+      "data_inizio": "",
+      "data_scadenza": "",
+      "minuti_prima_allert": 30,
+      "durata_stimata": 0,
+      "durata_effettiva": null,
+      "scadenza": false,
+      "tariffa_oraria": 300.0,
+      "tariffa_stimata": "0.00",
+      "tariffa_effettiva": "0.00",
+      "id_evento": ""
+    }
+  ],
+  "scadenze_totale_durata_stimata": 0,
+  "scadenze_totale_tariffa_stimata": 0.0,
+  "scadenze_totale_tariffa_effettiva": 0.0
+}
