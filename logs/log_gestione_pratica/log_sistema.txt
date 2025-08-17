@@ -192,3 +192,883 @@ KeyboardInterrupt
 NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
 NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
 NiceGUI ready to go on http://localhost:8080, and http://192.168.10.147:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+mostra_popup_apertura() takes from 0 to 2 positional arguments but 4 were given
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/timer.py", line 99, in _invoke_callback
+    result = self.callback()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 214, in <lambda>
+    ui.timer(0.1, lambda: mostra_popup_apertura(pratica_data, id_pratica, _set_user, anagrafica_data), once=True)
+                          ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: mostra_popup_apertura() takes from 0 to 2 positional arguments but 4 were given
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+'_GeneratorContextManager' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 112, in save_all
+    with transaction(conn):
+         ~~~~~~~~~~~^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/db_core.py", line 48, in atomic_tx
+    con.execute("BEGIN")
+    ^^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'execute'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 115, in save_all
+    conn.close()
+    ^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'close'
+'_GeneratorContextManager' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 112, in save_all
+    with transaction(conn):
+         ~~~~~~~~~~~^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/db_core.py", line 48, in atomic_tx
+    con.execute("BEGIN")
+    ^^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'execute'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 115, in save_all
+    conn.close()
+    ^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'close'
+'_GeneratorContextManager' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 112, in save_all
+    with transaction(conn):
+         ~~~~~~~~~~~^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/db_core.py", line 48, in atomic_tx
+    con.execute("BEGIN")
+    ^^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'execute'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 115, in save_all
+    conn.close()
+    ^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'close'
+'_GeneratorContextManager' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 112, in save_all
+    with transaction(conn):
+         ~~~~~~~~~~~^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/db_core.py", line 48, in atomic_tx
+    con.execute("BEGIN")
+    ^^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'execute'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 115, in save_all
+    conn.close()
+    ^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'close'
+'_GeneratorContextManager' object has no attribute 'close'
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 112, in save_all
+    with transaction(conn):
+         ~~~~~~~~~~~^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/db_core.py", line 48, in atomic_tx
+    con.execute("BEGIN")
+    ^^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'execute'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 115, in save_all
+    conn.close()
+    ^^^^^^^^^^
+AttributeError: '_GeneratorContextManager' object has no attribute 'close'
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+Dual-write fallito: table pratiche has no column named anno
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named anno
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named anno
+Dual-write fallito: table pratiche has no column named anno
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named anno
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named anno
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+Dual-write fallito: table pratiche has no column named titolo
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 92, in upsert_pratica
+    conn.execute(
+    ~~~~~~~~~~~~^
+        f"""
+        ^^^^
+    ...<3 lines>...
+        values,
+        ^^^^^^^
+    )
+    ^
+sqlite3.OperationalError: table pratiche has no column named titolo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table pratiche has no column named titolo
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+Dual-write fallito: table scadenze has no column named data
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 101, in upsert_pratica
+    upsert_scadenze(conn, pid, pratica_dict.get("scadenze") or [])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 116, in upsert_scadenze
+    conn.execute(
+    ~~~~~~~~~~~~^
+        "INSERT INTO scadenze(id_pratica, data, descrizione, stato) VALUES (?,?,?,?)",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table scadenze has no column named data
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: table scadenze has no column named data
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+Dual-write fallito: cannot start a transaction within a transaction
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 48, in upsert_pratica
+    with transaction(conn):
+         ~~~~~~~~~~~^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/db_core.py", line 48, in atomic_tx
+    con.execute("BEGIN")
+    ~~~~~~~~~~~^^^^^^^^^
+sqlite3.OperationalError: cannot start a transaction within a transaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: cannot start a transaction within a transaction
+Dual-write fallito: cannot start a transaction within a transaction
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 48, in upsert_pratica
+    with transaction(conn):
+         ~~~~~~~~~~~^^^^^^
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/db_core.py", line 48, in atomic_tx
+    con.execute("BEGIN")
+    ~~~~~~~~~~~^^^^^^^^^
+sqlite3.OperationalError: cannot start a transaction within a transaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: cannot start a transaction within a transaction
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 74, in upsert_pratica
+    conn.execute(sql, insert_vals)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: Error binding parameter 2: type 'dict' is not supported
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 74, in upsert_pratica
+    conn.execute(sql, insert_vals)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: Error binding parameter 2: type 'dict' is not supported
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 280, in <lambda>
+    ui.button('Calcola Ore', icon='schedule').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_calcola_ore())
+                                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/calcola_ore_popup_def.py", line 75, in mostra_popup_calcola_ore
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 280, in <lambda>
+    ui.button('Calcola Ore', icon='schedule').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_calcola_ore())
+                                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/calcola_ore_popup_def.py", line 75, in mostra_popup_calcola_ore
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 280, in <lambda>
+    ui.button('Calcola Ore', icon='schedule').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_calcola_ore())
+                                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/calcola_ore_popup_def.py", line 75, in mostra_popup_calcola_ore
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 280, in <lambda>
+    ui.button('Calcola Ore', icon='schedule').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_calcola_ore())
+                                                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/calcola_ore_popup_def.py", line 75, in mostra_popup_calcola_ore
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 74, in upsert_pratica
+    conn.execute(sql, insert_vals)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: Error binding parameter 2: type 'dict' is not supported
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 74, in upsert_pratica
+    conn.execute(sql, insert_vals)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: Error binding parameter 2: type 'dict' is not supported
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 74, in upsert_pratica
+    conn.execute(sql, insert_vals)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: Error binding parameter 2: type 'dict' is not supported
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: Error binding parameter 2: type 'dict' is not supported
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 264, in <lambda>
+    ui.button('Modifica settori', icon='category').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_modifica_settori(
+                                                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+            on_update=lambda: pratica_data.get('refresh_settori', lambda: None)()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ))
+        ^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/materia_settore_popup_def.py", line 219, in mostra_popup_modifica_settori
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 264, in <lambda>
+    ui.button('Modifica settori', icon='category').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_modifica_settori(
+                                                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+            on_update=lambda: pratica_data.get('refresh_settori', lambda: None)()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ))
+        ^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/materia_settore_popup_def.py", line 219, in mostra_popup_modifica_settori
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 268, in <lambda>
+    ui.button('Modifica materie', icon='book').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_modifica_materie(
+                                                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+            on_update=lambda: pratica_data.get('refresh_materie', lambda: None)()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ))
+        ^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/materia_settore_popup_def.py", line 131, in mostra_popup_modifica_materie
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+name 'wit' is not defined
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 272, in <lambda>
+    ui.button('Modifica avvocati', icon='people').classes('w-full mb-2 hover:bg-blue-50').on('click', lambda: mostra_popup_modifica_avvocati(
+                                                                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+            on_update=lambda: pratica_data.get('refresh_avvocati', lambda: None)()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ))
+        ^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/avvocati_popup_def.py", line 119, in mostra_popup_modifica_avvocati
+    crea_pulsanti_controllo(dialog, card)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/utils.py", line 166, in crea_pulsanti_controllo
+    wit
+NameError: name 'wit' is not defined
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+Dual-write fallito: UNIQUE constraint failed: scadenze.uid
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 72, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 125, in upsert_pratica
+    upsert_scadenze(conn, pid, pratica_dict.get("scadenze") or [])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/repo_sqlite.py", line 150, in upsert_scadenze
+    conn.executemany(
+    ~~~~~~~~~~~~~~~~^
+        "INSERT INTO scadenze(id_pratica, uid, pos, data_scadenza, descrizione, note, completata) "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "VALUES (?,?,?,?,?,?,?)",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+        rows,
+        ^^^^^
+    )
+    ^
+sqlite3.IntegrityError: UNIQUE constraint failed: scadenze.uid
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/server.py", line 249, in _salva_wrapper
+    out = salva_pratica(pratica_clean, anagrafica_clean)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 100, in salva_pratica
+    return salva_tutto(pratica, json_root=json_root, db_path=db_path)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/salva_tutto.py", line 72, in salva_tutto
+    return save_all(pratica)
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 81, in save_all
+    raise DualSaveError(f"Dual-write fallito: {e}") from e
+dual_save.DualSaveError: Dual-write fallito: UNIQUE constraint failed: scadenze.uid
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+load_next_id() missing 1 required positional argument: 'anno'
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 495, in salva
+    numero, anno = load_next_id()
+                   ~~~~~~~~~~~~^^
+TypeError: load_next_id() missing 1 required positional argument: 'anno'
+load_next_id() missing 1 required positional argument: 'anno'
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 495, in salva
+    numero, anno = load_next_id()
+                   ~~~~~~~~~~~~^^
+TypeError: load_next_id() missing 1 required positional argument: 'anno'
+load_next_id() missing 1 required positional argument: 'anno'
+Traceback (most recent call last):
+  File "/home/robert/anaconda3/envs/gest_prat/lib/python3.13/site-packages/nicegui/events.py", line 433, in handle_event
+    result = cast(Callable[[], Any], handler)()
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/apertura_pratica_popup.py", line 495, in salva
+    numero, anno = load_next_id()
+                   ~~~~~~~~~~~~^^
+TypeError: load_next_id() missing 1 required positional argument: 'anno'
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0
+NiceGUI ready to go on http://localhost:8080, and http://192.168.43.254:8080
+Index OK: inserite 0, aggiornate 0

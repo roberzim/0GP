@@ -1,131 +1,65 @@
-{
-  "version": 1,
-  "records": [
-    {
-      "id_pratica": "1/2025",
-      "num_pratica": 1,
-      "anno_pratica": 2025,
-      "nome_pratica": "aa_012025",
-      "percorso_pratica": "/path/alla/cartella",
-      "created_at": "2025-08-11T17:03:14+02:00",
-      "created_by": "utente"
-    },
-    {
-      "id_pratica": "2/2025",
-      "num_pratica": 2,
-      "anno_pratica": 2025,
-      "nome_pratica": "Collisione_20250813_211332",
-      "percorso_pratica": "",
-      "created_at": "2025-08-13T21:13:32",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "2/2025",
-      "num_pratica": 2,
-      "anno_pratica": 2025,
-      "nome_pratica": "Smoke_Overwrite_20250813_211332",
-      "percorso_pratica": "app_pratiche/Smoke_Overwrite_20250813_211332",
-      "created_at": "2025-08-13T21:13:32",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "3/2025",
-      "num_pratica": 3,
-      "anno_pratica": 2025,
-      "nome_pratica": "Collisione_20250813_211536",
-      "percorso_pratica": "",
-      "created_at": "2025-08-13T21:15:36",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "3/2025",
-      "num_pratica": 3,
-      "anno_pratica": 2025,
-      "nome_pratica": "Smoke_Overwrite_20250813_211536",
-      "percorso_pratica": "app_pratiche/Smoke_Overwrite_20250813_211536",
-      "created_at": "2025-08-13T21:15:36",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "4/2025",
-      "num_pratica": 4,
-      "anno_pratica": 2025,
-      "nome_pratica": "Collisione_20250813_211634",
-      "percorso_pratica": "",
-      "created_at": "2025-08-13T21:16:34",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "4/2025",
-      "num_pratica": 4,
-      "anno_pratica": 2025,
-      "nome_pratica": "Smoke_Overwrite_20250813_211634",
-      "percorso_pratica": "app_pratiche/Smoke_Overwrite_20250813_211634",
-      "created_at": "2025-08-13T21:16:34",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "5/2025",
-      "num_pratica": 5,
-      "anno_pratica": 2025,
-      "nome_pratica": "Collisione_20250813_211742",
-      "percorso_pratica": "",
-      "created_at": "2025-08-13T21:17:42",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "5/2025",
-      "num_pratica": 5,
-      "anno_pratica": 2025,
-      "nome_pratica": "Smoke_Overwrite_20250813_211742",
-      "percorso_pratica": "app_pratiche/Smoke_Overwrite_20250813_211742",
-      "created_at": "2025-08-13T21:17:42",
-      "created_by": "smoke"
-    },
-    {
-      "id_pratica": "6/2025",
-      "num_pratica": 6,
-      "anno_pratica": 2025,
-      "nome_pratica": "novab_062025",
-      "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/novab_14082025/novab_062025",
-      "created_at": "2025-08-14T21:55:06",
-      "created_by": "Claudio Palmieri"
-    },
-    {
-      "id_pratica": "7/2025",
-      "num_pratica": 7,
-      "anno_pratica": 2025,
-      "nome_pratica": "novac_072025",
-      "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/nova_14082025/novac_14082025/novac_072025",
-      "created_at": "2025-08-14T22:00:42",
-      "created_by": "Claudio Palmieri"
-    },
-    {
-      "id_pratica": "8/2025",
-      "num_pratica": 8,
-      "anno_pratica": 2025,
-      "nome_pratica": "novad_082025",
-      "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/novad_14082025/novad_082025",
-      "created_at": "2025-08-14T22:02:58",
-      "created_by": "Claudio Palmieri"
-    },
-    {
-      "id_pratica": "9/2025",
-      "num_pratica": 9,
-      "anno_pratica": 2025,
-      "nome_pratica": "r_092025",
-      "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/r_14082025/r_092025",
-      "created_at": "2025-08-14T23:58:18",
-      "created_by": "Chiara Cremona"
-    },
-    {
-      "id_pratica": "10/2025",
-      "num_pratica": 10,
-      "anno_pratica": 2025,
-      "nome_pratica": "rr_102025",
-      "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/esempio/bb_11082025/rr_15082025/rr_102025",
-      "created_at": "2025-08-15T00:02:57",
-      "created_by": "Chiara Cremona"
-    }
-  ]
-}
+[
+  {
+    "num_pratica": 11,
+    "anno_pratica": 2025,
+    "nome_pratica": "_012025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/_17082025/_012025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/_17082025/_012025"
+  },
+  {
+    "num_pratica": 12,
+    "anno_pratica": 2025,
+    "nome_pratica": "C_122025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/C_17082025/C_122025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/C_17082025/C_122025"
+  },
+  {
+    "num_pratica": 13,
+    "anno_pratica": 2025,
+    "nome_pratica": "B_132025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/B_17082025/B_132025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/B_17082025/B_132025"
+  },
+  {
+    "num_pratica": 14,
+    "anno_pratica": 2025,
+    "nome_pratica": "hkjòjhò_142025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/hkjòjhò_17082025/hkjòjhò_142025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/hkjòjhò_17082025/hkjòjhò_142025"
+  },
+  {
+    "num_pratica": 15,
+    "anno_pratica": 2025,
+    "nome_pratica": "rtrewtret_152025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/rtrewtret_17082025/rtrewtret_152025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/rtrewtret_17082025/rtrewtret_152025"
+  },
+  {
+    "num_pratica": 16,
+    "anno_pratica": 2025,
+    "nome_pratica": "ggg_162025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/ggg_17082025/ggg_162025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/ggg_17082025/ggg_162025"
+  },
+  {
+    "num_pratica": 17,
+    "anno_pratica": 2025,
+    "nome_pratica": "chiara_172025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/chiara_17082025/chiara_172025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/chiara_17082025/chiara_172025"
+  },
+  {
+    "num_pratica": 18,
+    "anno_pratica": 2025,
+    "nome_pratica": "u_182025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/u_17082025/u_182025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/u_17082025/u_182025"
+  },
+  {
+    "num_pratica": 19,
+    "anno_pratica": 2025,
+    "nome_pratica": "V_192025",
+    "percorso_pratica": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/V_17082025/V_192025",
+    "link_cartella": "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/V_17082025/V_192025"
+  }
+]

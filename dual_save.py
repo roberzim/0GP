@@ -1,103 +1,165 @@
 from __future__ import annotations
-"""
-dual_save.py — salva due copie del JSON della pratica.
-
-1) Copia TIMESTAMPATA nella CARTELLA della pratica:
-   <num>_<anno>_gp_<DDMMYYYY>_<HHMMSS>.json
-
-2) Copia BACKUP “di app” sovrascrivibile in backup_dir:
-   <num>_<anno>_gp.json
-
-Uso:
-    out = dual_save(
-        pratica_folder=Path('/percorso/cliente/pratica'),
-        backup_dir=Path('archivio/backups_json'),
-        base_id='9_2025',
-        data=pratica_dict,   # oppure json_text='...'
-    )
-"""
-
 from pathlib import Path
-from datetime import datetime
 from typing import Optional, Dict, Any
-import os
-import json
-import re  # FIX: serviva per _sanitize_base_id
+import os, json, tempfile, traceback
 
-def _atomic_write_text(path: Path, text: str) -> None:
-    """Scrittura atomica: tmp + replace (stesso filesystem)."""
+from db_core import get_db_path, connect, transaction
+import repo_sqlite
+import paths
+import sql_export
+
+class DualSaveError(Exception): ...
+
+# ---------------- I/O atomico ----------------
+
+def _atomic_write(path: Path, text: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = Path(str(path) + '.tmp')
-    with open(tmp, 'w', encoding='utf-8') as f:
-        f.write(text)
+    fd, tmp = tempfile.mkstemp(prefix=path.name, dir=str(path.parent))
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(text)
+            try:
+                f.flush(); os.fsync(f.fileno())
+            except Exception:
+                pass
+        os.replace(tmp, path)
+    finally:
+        try: os.remove(tmp)
+        except FileNotFoundError: pass
+
+def _atomic_write_json(path: Path, data: Dict[str, Any]) -> None:
+    _atomic_write(path, json.dumps(data, ensure_ascii=False, indent=2))
+
+def _log_err(msg: str) -> None:
+    try:
+        lp = Path("logs") / "log_gestione_pratica"
+        lp.mkdir(parents=True, exist_ok=True)
+        with (lp / "dual_save_error.txt").open("a", encoding="utf-8") as f:
+            f.write(msg.rstrip() + "\n")
+    except Exception:
+        pass
+
+# -------------- risoluzione cartella utente --------------
+
+def _read_user_dir_hint(app_dir: Path) -> Optional[Path]:
+    hint = app_dir / "user_dir.txt"
+    if hint.exists():
         try:
-            f.flush(); os.fsync(f.fileno())
+            p = Path(hint.read_text(encoding="utf-8").strip()).expanduser()
+            p.mkdir(parents=True, exist_ok=True)
+            return p
         except Exception:
-            pass
-    os.replace(tmp, path)
+            return None
+    return None
 
-def _sanitize_base_id(s: str) -> str:
-    """Conserva solo [A-Za-z0-9_-]; rimuove separatori come '/'."""
-    s = s or ''
-    s = s.replace('/', '')
-    return re.sub(r'[^A-Za-z0-9_-]+', '', s)
+def _write_user_dir_hint(app_dir: Path, user_dir: Path) -> None:
+    try:
+        (app_dir / "user_dir.txt").write_text(str(user_dir), encoding="utf-8")
+    except Exception:
+        pass
 
-def dual_save(
-    pratica_folder: Path | str,
-    backup_dir: Path | str,
-    base_id: str,
-    *,
-    data: Optional[Dict[str, Any]] = None,
-    json_text: Optional[str] = None,
-    timestamp: Optional[datetime] = None,
-) -> Dict[str, str]:
-    """Crea due copie del JSON pratica:
-    1) Timestamp nella cartella pratica: <ID>_gp_DDMMYYYY_HHMMSS.json
-    2) Backup app sovrascrivibile:       <ID>_gp.json in backup_dir
+def _derive_id(data: Dict[str, Any]) -> str:
+    pid = data.get("id_pratica") or data.get("id") or data.get("codice")
+    if not pid:
+        raise DualSaveError("Pratica senza 'id_pratica'")
+    return str(pid)
 
-    Sorgente:
-      - se 'data' è passato, serializza 'data'
-      - altrimenti se 'json_text' è passato, usa quello
-      - altrimenti legge <pratica_folder>/pratica.json
+# ---------------- API principale ----------------
 
-    Ritorna dict con percorsi e dimensione in byte.
+def save_all(data: Dict[str, Any], json_path: Optional[str] = None) -> Dict[str, str]:
     """
-    pratica_folder = Path(pratica_folder)
-    backup_dir = Path(backup_dir)
-    base_id = _sanitize_base_id(str(base_id))
-    if not base_id:
-        raise ValueError("dual_save: 'base_id' non può essere vuoto")
+    Pipeline:
+      1) JSON primario app: app_pratiche/<id>/pratica.json (compat)
+      2) Upsert SQLite
+      3) Copie:
+         - APP (statiche, sovrascrivibili): <id>_gp.json + <id>_gp.sql
+         - UTENTE (timestamped):            <id>_gp_<DDMMYYYY>_<HHMMSS>.json + .sql
+    """
+    pid = _derive_id(data)
+    ts = paths.timestamp_now()
 
-    # determina la sorgente JSON
-    if data is not None:
-        js = json.dumps(data, ensure_ascii=False, indent=2)
-        source = 'data'
-    elif json_text is not None:
-        js = str(json_text)
-        source = 'json_text'
-    else:
-        canon = pratica_folder / 'pratica.json'
-        if not canon.exists():
-            raise FileNotFoundError(
-                f'dual_save: sorgente {canon} non trovata; passa \'data\' o \'json_text\''
-            )
-        js = canon.read_text(encoding='utf-8')
-        source = 'pratica.json'
+    app_dir = paths.app_pratica_dir(pid)            # app_pratiche/<id>/
+    # 1st choice: dato in pratica -> 2nd: hint salvato -> 3rd: env/default
+    user_dir = None
+    try:
+        user_dir = paths.get_user_root(data)
+    except Exception:
+        user_dir = None
+    if user_dir is None or not isinstance(user_dir, Path):
+        hint = _read_user_dir_hint(app_dir)
+        user_dir = hint if hint is not None else paths.get_user_root({})
 
-    # prepara i path di uscita
-    ts = (timestamp or datetime.now()).strftime('%d%m%Y_%H%M%S')
-    ts_name = f'{base_id}_gp_{ts}.json'
-    ts_path = pratica_folder / ts_name
-    backup_path = backup_dir / f'{base_id}_gp.json'
+    sqlite_path = Path(get_db_path())
 
-    # scritture atomiche
-    _atomic_write_text(ts_path, js)
-    _atomic_write_text(backup_path, js)
+    # 1) JSON primario compat
+    primary_json = app_dir / "pratica.json"
+    _atomic_write_json(primary_json, data)
+
+    # 2) DB
+    with connect(str(sqlite_path)) as conn:
+        with transaction(conn):
+            repo_sqlite.upsert_pratica(conn, data)
+        # SQL singola pratica
+        sql_text = sql_export.render_pratica_sql(conn, pid)
+
+    # 3) Copie richieste
+    try:
+        # Nomi
+        fname_json_ts = paths.build_timestamp_name(pid, "json", ts)
+        fname_sql_ts  = paths.build_timestamp_name(pid, "sql", ts)
+        fname_json_static = paths.build_static_name(pid, "json")
+        fname_sql_static  = paths.build_static_name(pid, "sql")
+
+        # APP: statici sovrascrivibili
+        _atomic_write_json(app_dir / fname_json_static, data)
+        _atomic_write(app_dir / fname_sql_static,  sql_text)
+
+        # UTENTE: timestamped
+        user_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write_json(user_dir / fname_json_ts, data)
+        _atomic_write(user_dir / fname_sql_ts,  sql_text)
+
+        # Ricorda la cartella utente per i salvataggi futuri
+        _write_user_dir_hint(app_dir, user_dir)
+
+    except Exception as e:
+        _log_err(f"[dual_save secondary files] {e}\n{traceback.format_exc()}")
 
     return {
-        'timestamped_path': str(ts_path),
-        'backup_path': str(backup_path),
-        'bytes': str(len(js.encode('utf-8'))),
-        'source': source,
+        "json_primary": str(primary_json),
+        "sqlite_path": str(sqlite_path),
+        "user_dir": str(user_dir),
+        "app_dir": str(app_dir),
+        "user_json_timestamped": str(user_dir / fname_json_ts),
+        "user_sql_timestamped":  str(user_dir / fname_sql_ts),
+        "app_json_static":       str(app_dir / fname_json_static),
+        "app_sql_static":        str(app_dir / fname_sql_static),
     }
 
+# ------- Shim legacy: mantenere chiavi attese ('timestamped_path', 'backup_path') -------
+
+from pathlib import Path as _P
+import json as _json
+
+def dual_save(pratica_folder, backup_dir=None, base_id=None, *, data=None, json_text=None, timestamp=None):
+    """
+    Legacy: ritorna anche 'timestamped_path' (JSON con TS) e 'backup_path' (JSON statico in app).
+    """
+    try:
+        # Recupera dati se non passati
+        if data is None:
+            if json_text is not None:
+                data = _json.loads(json_text)
+            elif pratica_folder:
+                p = _P(pratica_folder) / "pratica.json"
+                data = _json.loads(p.read_text(encoding="utf-8"))
+        if data is None:
+            raise DualSaveError("dual_save legacy: dati pratica mancanti")
+
+        res = save_all(data)
+        # Compat: puntiamo il timestamped nella CARTELLA UTENTE e il backup allo statico APP
+        res["timestamped_path"] = res.get("user_json_timestamped") or ""
+        res["backup_path"] = res.get("app_json_static") or ""
+        return res
+    except Exception as e:
+        raise DualSaveError(f"dual_save legacy fallito: {e}") from e

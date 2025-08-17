@@ -1,0 +1,7 @@
+[17082025_015015] Errore primario per 20/2025: module 'repo_sqlite' has no attribute 'upsert_pratica'
+Traceback (most recent call last):
+  File "/home/robert/StudioLegalePalmieri/AMMINISTRAZIONE/StudioLegaleAssociato/Gestione_pratiche/0GP/dual_save.py", line 135, in save_all
+    repo_sqlite.upsert_pratica(conn, data)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'repo_sqlite' has no attribute 'upsert_pratica'
+

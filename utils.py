@@ -163,5 +163,5 @@ def crea_pulsanti_controllo(dialog, card_element: Optional[Any] = None) -> None:
                 else:
                     card_element.style('min-width: 600px; width: auto; max-width: 800px; height: auto;')
 
-    wit
+    pass
 
